@@ -51,7 +51,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 
 	
 	// Adding a command "reloadRPC" ("vscode-rpc." is the extension name)
-	const reloadCommand = "vscode-rpc.reload RPC";
+	const reloadCommand = "vscode-rpc.reloadRPC";
 	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => {
 		initRPC();
 	}));
@@ -67,7 +67,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	// Adding the statusBarItem to vscode
 	subscriptions.push(statusBarItem);
 
-
+	// On file open event
 	subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => {
 		updateRPC();
 	}));
