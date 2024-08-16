@@ -48,7 +48,6 @@ let statusBarItem: vscode.StatusBarItem;
 // Activation
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 	console.log("VSCode RPC enabled");
-
 	
 	// Adding a command "reloadRPC" ("vscode-rpc." is the extension name)
 	const reloadCommand = "vscode-rpc.reloadRPC";
