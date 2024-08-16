@@ -51,7 +51,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 
 	
 	// Adding a command "reloadRPC" ("vscode-rpc." is the extension name)
-	const reloadCommand = "vscode-rpc.reloadRPC";
+	const reloadCommand = "vscode-rpc.reload RPC";
 	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => {
 		initRPC();
 	}));
