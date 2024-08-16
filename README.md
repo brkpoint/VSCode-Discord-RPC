@@ -7,7 +7,7 @@ This is an extension to vscode for discord rpc
 - Time elapsed, self explanatory
 
 ## Requirements
-Discord installed (ig)
+Discord installed
 
 ## Extension Settings
 For now nothing here.
