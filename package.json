@@ -7,7 +7,7 @@
   "repository": {
     "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.92.0"
   },
