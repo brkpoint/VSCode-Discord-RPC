@@ -1,5 +1,6 @@
-### 1.0.0 VSCode-RPC
-This is an extension to vscode for discord rpc
+### 0.0.2 VSCode-Discord-RPC
+This is an extension to vscode for discord rpc.
+[Versioning](https://semver.org/#semantic-versioning-200)
 
 ## Features
 - Working on, Shows in the RPC what are you currently working on
@@ -19,5 +20,5 @@ None at the moment.
 ## Release Notes
 Added the RPC stuff and planning to add a icon for debbuging and running in RPC. 
 
-### 1.0.0
-Initial release of VSCode-RPC
+### 0.0.2
+Alpha release of VSCode-Discord-RPC
