@@ -21,8 +21,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-rpc.reloadRPC",
+        "command": "vscode-discord-rpc.reloadRPC",
         "title": "Reload RPC"
+      },
+      {
+        "command": "vscode-discord-rpc.stopRPC",
+        "title": "Stop RPC"
       }
     ]
   },

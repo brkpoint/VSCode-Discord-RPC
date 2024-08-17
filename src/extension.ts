@@ -24,11 +24,15 @@ const icons = [
 	"python",
 	"java",
 	"asm-intel-x86-generic",
+	"bin",
 ];
 // Start of the RPC
 const startTimestamp = new Date();
 
 let rpc: any;
+
+// Interval for updating RPC
+let refreshIntervalId: any;
 
 /* -- RPC activity object --
 {
@@ -45,14 +49,24 @@ let rpc: any;
 
 let statusBarItem: vscode.StatusBarItem;
 
-// Activation
+// The extension has started
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 	console.log("VSCode RPC enabled");
 	
-	// Adding a command "reloadRPC" ("vscode-rpc." is the extension name)
-	const reloadCommand = "vscode-rpc.reloadRPC";
+	// Adding a command "reloadRPC" ("vscode-discord-rpc." is the extension name)
+	const reloadCommand = "vscode-discord-rpc.reloadRPC";
 	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => {
 		initRPC();
+	}));
+
+	const stopCommand = "vscode-discord-rpc.stopRPC";
+	subscriptions.push(vscode.commands.registerCommand(stopCommand, () => {
+		// If there isnt any intervals we dont stop it
+		if (!refreshIntervalId) {
+			return;
+		}
+
+		stopRPC();
 	}));
 	
 	// Adding a statusBarItem to status bar with the command "reloadRPC"
@@ -74,14 +88,17 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	initRPC();
 }
 
-// Deactivation
+// The extension has stopped
 export function deactivate() {
-
+	stopRPC();
+	
+	console.log("Bye!");
 }
 
 // Initializing and seting up RPC
 function initRPC(): void {
 	register(applicationID);
+
 	console.log("Registered app ID");
 
 	rpc = new Client({ transport: 'ipc' });
@@ -93,7 +110,7 @@ function initRPC(): void {
 		updateRPC();
 
 		// Updating the activity once per 15 seconds
-		setInterval(() => {
+		refreshIntervalId =  setInterval(() => {
 			updateRPC();
 			statusBarItem.text = "$(pass-filled) RPC Connected";
 		}, 15000);
@@ -111,6 +128,20 @@ function initRPC(): void {
 	statusBarItem.text = "$(pass-filled) RPC Connected";
 }
 
+function stopRPC(): void {
+	console.log("Stopping RPC...");
+	
+	// Destroying the rpc
+	rpc.destroy();
+	rpc = null;
+
+	// Removing the interval from running
+	clearInterval(refreshIntervalId);
+	refreshIntervalId = null;
+
+	console.log("RPC Stopped");
+}
+
 function updateRPC(): void {
 	console.log("Updating the RPC");
 
@@ -123,42 +154,50 @@ function updateRPC(): void {
 
 	const editor = vscode.window.activeTextEditor;
 
-	// If the user is editing the code
-	if (editor) {
-		const workspaceName = vscode.workspace.name;
-
-		const fileName = editor.document.fileName.split("/").at(-1);
-		// Column and line of the file
-		const line = editor.selection.active.line + 1;
-		const col = editor.selection.active.character + 1;
-
-		let iconId = editor.document.languageId;
-
-		// If we dont have the icon of the file
-		if (!icons.includes(iconId)) {
-			iconId = "default";
-		}
-
-		// For some reason ".bin" files are marked as plain text files so we check for bin files
-		if (iconId === "plaintext") {
-			iconId = fileName?.split('.').at(-1) === "bin" ? "bin" : "default";
-		}
-
+	// If the user is not editing the code
+	if (!editor) {
+		// Idle activity
 		rpc.setActivity({
-			details: `Working on ${workspaceName}`,
-			state: `${fileName}:${line}:${col}`,
+			details: "Ilde...",
 			startTimestamp,
-			largeImageKey: iconId,
+			largeImageKey: "vscode",
 			instance: false,
 		});
+
 		return;
 	}
 
-	// Idle activity
+	// Only the file name and extension
+	const fileName = editor.document.fileName.split("/").at(-1);
+
+	// Problems in current file
+	const diagnostics = vscode.languages.getDiagnostics(editor.document.uri).length;
+
+	// Correct spelling
+	const diagnosticsEnd = diagnostics === 1 ? "" : "s";
+
+	// Column and line of the file
+	const line = editor.selection.active.line + 1;
+	const col = editor.selection.active.character + 1;
+
+	// Icon ID for RPC
+	let iconId = editor.document.languageId;
+
+	// For some reason some files are marked as plain-text so we check file's extension
+	if (iconId === "plaintext") {
+		iconId = fileName?.split('.').at(-1) ?? "";
+	}
+
+	// If we dont have the icon
+	if (!icons.includes(iconId)) {
+		iconId = "default";
+	}
+
 	rpc.setActivity({
-		details: "Ilde...",
+		details: `Working on ${vscode.workspace.name}`,
+		state: `${fileName}:${line}:${col} - ${diagnostics} problem${diagnosticsEnd}`,
 		startTimestamp,
-		largeImageKey: "vscode",
+		largeImageKey: iconId,
 		instance: false,
 	});
 }
