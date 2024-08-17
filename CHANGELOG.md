@@ -5,6 +5,9 @@
 - 'rpc.mjs' module
 - rewrote some of the code
 - More console logs
+### Fixed
+- versioning
+- dates in 'CHANGELOG.md'
 ### Removed
 - "Working on ..." text from RPC
 

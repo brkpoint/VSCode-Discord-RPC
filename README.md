@@ -23,7 +23,7 @@ For now nothing here.
 First steps towards settings for this extension! Rewrote some code.
 
 ### 0.1.1
-'rpc.mjs' file as a helper module for discord-rpc.
+'rpc.mjs' file as a helper module for discord-rpc. Also fixed the versioning
 
 ### 0.1.0
 `vscode-discord-rpc.stopRPC` command, small bug fixes.
