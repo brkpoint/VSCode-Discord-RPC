@@ -42,11 +42,9 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	// On file open event
 	subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => RPC.update()));
 	
-	// Make the statusBarItem have a "loading" animation with the text below
-	statusBarItem.text = "$(sync~spin) RPC Connecting...";
-
-	// Adding a statusBarItem to status bar with the command "reloadRPC"
+	// Adding a statusBarItem to status bar with the command "reloadRPC" and loading text
 	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+	statusBarItem.text = "$(sync~spin) RPC Connecting...";
 	statusBarItem.command = reloadCommand;
 
 	// Adding the statusBarItem to vscode
