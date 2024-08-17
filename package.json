@@ -4,7 +4,7 @@
   "publisher": "brkpointdotorg",
   "displayName": "Custom Discord RPC",
   "description": "Custom vscode RPC for discord",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.92.0"
   },
