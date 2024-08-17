@@ -129,6 +129,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Own
-extt
+# Own directories
+.test/
+icons/
+extt/
+
+# Own files
 .DS_Store
