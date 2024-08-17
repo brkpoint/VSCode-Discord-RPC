@@ -1,4 +1,4 @@
-### 0.1.4 VSCode-Discord-RPC
+### 0.1.1 VSCode-Discord-RPC
 This is an extension for vscode to display custom discord rpc.
 
 ### [Versioning](https://semver.org/#semantic-versioning-200)
@@ -20,9 +20,12 @@ For now nothing here.
 - Timeout error, happens when you try to connect to discord too many times
 
 ## Release Notes
-New command `vscode-discord-rpc.stopRPC`, some small bugs and optimalizations made. Code needs rewriting I think.
+First steps towards settings for this extension! Rewrote some code.
 
-### 0.1.4
+### 0.1.1
+'rpc.mjs' file as a helper module for discord-rpc.
+
+### 0.1.0
 `vscode-discord-rpc.stopRPC` command, small bug fixes.
 
 ### 0.0.3

@@ -1,0 +1,27 @@
+{
+    "application": {
+        "icons": [
+            "javascript",
+            "typescript",
+            "json",
+            "ignore",
+            "markdown",
+            "html",
+            "css",
+            "c",
+            "cpp",
+            "csharp",
+            "rust",
+            "swift",
+            "lua",
+            "python",
+            "java",
+            "asm-intel-x86-generic",
+            "bin"
+        ],
+        "id": "1273940066603106328"
+    },
+    "extension": {
+
+    }
+}
