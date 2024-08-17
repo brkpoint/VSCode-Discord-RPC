@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.1.1] - 2023-08-17
+## [1.0.0] - 2023-08-17
 ### Added
 - 'rpc.mjs' module
 - rewrote some of the code
