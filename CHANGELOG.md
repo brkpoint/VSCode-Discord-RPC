@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.2] - 2023-08-20
+### Updated
+- Error handling in 'rpc.mjs'
+### Fixed
+- Some minor bugs in 'extension.ts'
+
 ## [1.1.1] - 2023-08-19
 ### Added
 - `extension.settings.parses` to 'config.json' file.

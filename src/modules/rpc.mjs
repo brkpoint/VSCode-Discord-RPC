@@ -43,13 +43,12 @@ function on(event, callback) {
 // Initalize RPC
 function init(options) {
     if (rpc) {
-        console.error("Connection already initialized! - rpc.mjs");
-        emitter.emit(Events.Error);
+        emitter.emit(Events.Error, "RPC already initialized!");
         return;
     }
 
     if (!options.clientId) {
-        console.error("ID of the client wasnt set!");
+        emitter.emit(Events.Error, "ID of the client wasnt set!");
         return;
     }
 
@@ -62,8 +61,8 @@ function init(options) {
 
 // Reload connection
 function reload(options) {
-    if (!config.clientId) {
-        console.error("ID of the client wasnt set!");
+    if (!rpc) {
+        emitter.emit(Events.Error, "RPC not initialized!");
         return;
     }
 
@@ -81,31 +80,30 @@ function reload(options) {
 // Stop connection
 function stop() {
     if (!rpc) {
-        console.error("Connection isnt initialized! - rpc.mjs");
-        emitter.emit(Events.Error);
+        emitter.emit(Events.Error, "RPC already stopped!");
         return;
     }
-
-    if (!interval) {
-        return;
-    }
-
-    emitter.emit(Events.Stop);
-
+    
+    
     // Destroying the rpc
 	rpc.destroy();
 	rpc = null;
-
+    
+    if (!interval) {
+        return;
+    }
+    
 	// Removing the interval from running
 	clearInterval(interval);
 	interval = null;
+    
+    emitter.emit(Events.Stop);
 }
 
 // Update activity
 function update() {
     if (!rpc) {
-        console.error("Connection isnt initialized!");
-        emitter.emit(Events.Error);
+        emitter.emit(Events.Error, "RPC not initialized!");
         return;
     }
 

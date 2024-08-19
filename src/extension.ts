@@ -122,6 +122,8 @@ function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 	RPC.on(RPC.Events.Update, (rpc: any) => {
 		console.log("Updated RPC");
 
+		config.extension.settings.rpc = getSettings();
+
 		rpc.setActivity(getActivity(vscode.window.activeTextEditor, config));
 	});
 
