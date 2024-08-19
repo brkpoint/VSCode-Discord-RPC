@@ -22,6 +22,33 @@
         "id": "1273940066603106328"
     },
     "extension": {
-
+        "settings": {
+            "parses": [
+                {
+                    "string": "$(fileName)",
+                    "into": "fileName"
+                },
+                {
+                    "string": "$(fileType)",
+                    "into": "fileType"
+                },
+                {
+                    "string": "$(workspace)",
+                    "into": "workspaceName"
+                },
+                {
+                    "string": "$(problems)",
+                    "into": "problems"
+                },
+                {
+                    "string": "$(line)",
+                    "into": "line"
+                },
+                {
+                    "string": "$(col)",
+                    "into": "col"
+                }
+            ]
+        }
     }
 }

@@ -22,8 +22,7 @@ let rpc;
 // Interval for updating RPC
 let interval;
 
-let clientId;
-
+// Config of RPC
 let config;
 
 // Events stuff
@@ -41,22 +40,6 @@ function on(event, callback) {
     emitter.on(event, callback);
 }
 
-// Helper function
-function createRPC() {
-	rpc = new discordRPC.Client({ transport: 'ipc' });
-    
-    rpc.on("ready", () => {
-        emitter.emit(Events.Ready, rpc);
-		update();
-
-		interval = setInterval(() => {
-			update();
-		}, config.intervalTime ?? 15_000);
-	});
-
-    rpc.login({ clientId: clientId }).catch((error) => emitter.emit(Events.Error, error));
-}
-
 // Initalize RPC
 function init(options) {
     if (rpc) {
@@ -71,9 +54,8 @@ function init(options) {
     }
 
     config = options;
-    clientId = options.clientId;
 
-    discordRPC.register(clientId);
+    discordRPC.register(config.clientId);
 
     createRPC();
 }
@@ -85,7 +67,9 @@ function reload(options) {
         return;
     }
 
+    let id = config.clientId;
     config = options;
+    config.clientId = id;
 
     interval = null;
 
@@ -130,6 +114,22 @@ function update() {
 
 function getRPC() {
     return rpc;
+}
+
+// Helper function
+function createRPC() {
+	rpc = new discordRPC.Client({ transport: 'ipc' });
+    
+    rpc.on("ready", () => {
+        emitter.emit(Events.Ready, rpc);
+		update();
+
+		interval = setInterval(() => {
+			update();
+		}, config.intervalTime ?? 15_000);
+	});
+
+    rpc.login({ clientId: config.clientId }).catch((error) => emitter.emit(Events.Error, error));
 }
 
 export { init, reload, stop, update, on, getRPC, Events };

@@ -10,7 +10,7 @@ function getSettings() {
     return vscode.workspace.getConfiguration("vscode-discord-rpc");
 }
 
-function getInfo(editor, config) {
+function getInfo(editor: any, config: any) {
     const workspaceName = vscode.workspace.name;
 
     if (!editor) {
@@ -46,16 +46,14 @@ function getInfo(editor, config) {
     return { fileName, fileExtension, fileType, workspaceName, problems, line, col, iconId };
 }
 
-function parse(string, settings) {
-    const out = string
-        .replace("$(fileName)", settings.fileName ?? "N/A")
-        .replace("$(fileType)", settings.fileType ?? "N/A")
-        .replace("$(workspace)", settings.workspaceName ?? "N/A")
-        .replace("$(problems)", settings.problems ?? "N/A")
-        .replace("$(line)", settings.line ?? "N/A")
-        .replace("$(col)", settings.col ?? "N/A");
+// Parsing activity string into string with variables
+function parse(string: string, info: any, config: any): string {
+    // Format the string
+    for (const parse of config.extension.settings.parses) {
+        string = string.replace(parse.string, info[parse.into] ?? "N/A");
+    }
 
-    return out;
+    return string;
 }
 
 export { getSettings, getInfo, parse };

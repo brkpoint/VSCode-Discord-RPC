@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.1.1] - 2023-08-19
+### Added
+- `extension.settings.parses` to 'config.json' file.
+### Updated
+- `vscode-discord-rpc.updateTimeInterval` default seconds from `15` to `12`
+- Renamed 'settings.mjs' to 'settings.ts' and refactored some code
+
 ## [1.1.0] - 2023-08-18/19
 ### Added
 - Settings for extension

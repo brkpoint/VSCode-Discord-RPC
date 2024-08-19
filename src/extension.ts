@@ -2,8 +2,7 @@
 import * as vscode from "vscode";
 
 // Settings stuff
-// @ts-ignore
-import { getSettings, getInfo, parse } from "./modules/settings.mjs";
+import { getSettings, getInfo, parse } from "./modules/settings";
 
 // RPC
 // @ts-ignore
@@ -13,8 +12,6 @@ import * as RPC from "./modules/rpc.mjs";
 // @ts-ignore
 import config from "./config.json" assert { type: `json` };
 
-let settings: any;
-
 interface LooseObject {
     [key: string]: any
 }
@@ -22,18 +19,19 @@ interface LooseObject {
 // The extension has started
 export function activate({ subscriptions }: vscode.ExtensionContext): void {
 	console.log("VSCode RPC enabled");
+
+	// Config setup
 	config.extension.startTimestamp = new Date();
+	config.extension.settings.rpc = getSettings();
 
-	settings = getSettings();
-
-	RPC.init({ clientId: config.application.id, intervalTime: settings.updateTimeInterval * 1000 });
+	RPC.init({ clientId: config.application.id, intervalTime: config.extension.settings.rpc.updateTimeInterval * 1000 });
 	
-	// Adding a command "reloadRPC" ("vscode-discord-rpc." is the extension name)
+	// Adding a command "reloadRPC"
 	const reloadCommand = "vscode-discord-rpc.reloadRPC";
 	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => {
-		settings = getSettings();
+		config.extension.settings.rpc = getSettings();
 
-		RPC.reload({ intervalTime: settings.updateTimeInterval * 1000 });
+		RPC.reload({ intervalTime: config.extension.settings.rpc.updateTimeInterval * 1000 });
 	}));
 
 	const stopCommand = "vscode-discord-rpc.stopRPC";
@@ -44,16 +42,73 @@ export function activate({ subscriptions }: vscode.ExtensionContext): void {
 	
 	// Adding a statusBarItem to status bar with the command "reloadRPC" and loading text
 	let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+
 	statusBarItem.text = "$(sync~spin) RPC Connecting...";
 	statusBarItem.command = reloadCommand;
 
-	// Adding the statusBarItem to vscode
 	subscriptions.push(statusBarItem);
-
 	statusBarItem.show();
 
+	registerRpcEvents(statusBarItem);
+}
+
+// The extension has stopped
+export function deactivate(): void {
+	RPC.stop();
+	
+	console.log("Bye!");
+}
+
+// Helper function
+function getActivity(editor: vscode.TextEditor | undefined, config: any): Object {
+	const rpcSettings = config.extension.settings.rpc;
+
+	const info = getInfo(editor, config);
+
+	// Activity object to send
+	let activity: LooseObject = {
+		largeImageKey: "vscode",
+		instance: false,
+	};
+
+	// If user enabled timestamp
+	if (rpcSettings.showTime) {
+		activity.startTimestamp = config.extension.startTimestamp;
+	}
+
+	// If the user is not editing code
+	if (!editor) {
+		activity.details = parse(rpcSettings.idle.details, info, config) ?? "Idle...";
+		activity.largeImageText = parse(rpcSettings.idle.iconText, info, config) ?? "Idling...";
+
+		// If the 'state' field is not empty, parse it and display it
+		if (rpcSettings.idle.state) {
+			activity.state = parse(rpcSettings.idle.state, info, config);
+		}
+
+		return activity;
+	}
+
+	activity.details = parse(rpcSettings.editing.details, info, config) ?? info.workspaceName;
+	activity.largeImageText = parse(rpcSettings.editing.iconText, info, config) ?? "Editing...";
+
+	if (rpcSettings.editing.state) {
+		activity.state = parse(rpcSettings.editing.state, info, config);
+	}
+
+	// If 'showLanguageIcons' is enabled display the icon
+	if (rpcSettings.editing.showLanguageIcons) {
+		activity.largeImageKey = info.iconId;
+	}
+
+	return activity;
+}
+
+function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 	RPC.on(RPC.Events.Ready, (rpc: any) => {
 		console.log(`${rpc.user.username} connected!`);
+
+		console.log(getActivity(vscode.window.activeTextEditor, config));
 
 		statusBarItem.text = "$(pass-filled) RPC Connected";
 		statusBarItem.show();
@@ -67,9 +122,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext): void {
 	RPC.on(RPC.Events.Update, (rpc: any) => {
 		console.log("Updated RPC");
 
-		const editor = vscode.window.activeTextEditor;
-
-		rpc.setActivity(getActivity(editor, config));
+		rpc.setActivity(getActivity(vscode.window.activeTextEditor, config));
 	});
 
 	RPC.on(RPC.Events.Stop, (rpc: any) => {
@@ -82,6 +135,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext): void {
 	RPC.on(RPC.Events.Error, (error: any) => {
 		console.error(error);
 
+		// If connection timeout show the message to the user
 		if (error.message === "RPC_CONNECTION_TIMEOUT") {
 			vscode.window.showErrorMessage("RPC connection timeout");
 		}
@@ -89,50 +143,4 @@ export function activate({ subscriptions }: vscode.ExtensionContext): void {
 		statusBarItem.text = "$(error) RPC Not connected";
 		statusBarItem.show();
 	});
-}
-
-// The extension has stopped
-export function deactivate(): void {
-	RPC.stop();
-	
-	console.log("Bye!");
-}
-
-// Helper function
-function getActivity(editor: vscode.TextEditor | undefined, config: any): Object {
-	const info = getInfo(editor, config);
-
-	let activity: LooseObject = {
-		largeImageKey: "vscode",
-		instance: false,
-	};
-
-	if (settings.showTime) {
-		activity.startTimestamp = config.extension.startTimestamp;
-	}
-
-	// If the user is not editing code
-	if (!editor) {
-		activity.details = parse(settings.idle.details, info) ?? "Idle...";
-		activity.largeImageText = parse(settings.idle.iconText, info) ?? "Idling...";
-
-		if (settings.idle.state) {
-			activity.state = parse(settings.idle.state, info);
-		}
-
-		return activity;
-	}
-
-	activity.details = parse(settings.editing.details, info) ?? info.workspaceName;
-	activity.largeImageText = parse(settings.editing.iconText, info) ?? "Editing...";
-
-	if (settings.editing.state) {
-		activity.state = parse(settings.editing.state, info);
-	}
-
-	if (settings.editing.showLanguageIcons) {
-		activity.largeImageKey = info.iconId;
-	}
-
-	return activity;
 }

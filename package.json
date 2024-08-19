@@ -42,7 +42,7 @@
           "vscode-discord-rpc.updateTimeInterval": {
             "order": 1,
             "type": "number",
-            "default": 15,
+            "default": 12,
             "description": "Update time for interval in seconds."
           },
           "vscode-discord-rpc.editing.showLanguageIcons": {
