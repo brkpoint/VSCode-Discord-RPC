@@ -28,6 +28,61 @@
         "command": "vscode-discord-rpc.stopRPC",
         "title": "Stop RPC"
       }
+    ],
+    "configuration":[
+      {
+        "title": "VSCode Discord RPC",
+        "properties": {
+          "vscode-discord-rpc.showTime": {
+            "order": 0,
+            "type": "boolean",
+            "default": true,
+            "description": "Enable/Disable time elapsed."
+          },
+          "vscode-discord-rpc.updateTimeInterval": {
+            "order": 1,
+            "type": "number",
+            "default": 15,
+            "description": "Update time for interval in seconds."
+          },
+          "vscode-discord-rpc.editing.showLanguageIcons": {
+            "order": 2,
+            "type": "boolean",
+            "default": true,
+            "description": "Enable/Disable language icon of current file"
+          },
+          "vscode-discord-rpc.editing.details": {
+            "type": "string",
+            "default": "$(workspace)",
+            "description": "Details field for RPC."
+          },
+          "vscode-discord-rpc.editing.state": {
+            "type": "string",
+            "default": "$(fileName):$(line):$(col) - $(problems)",
+            "description": "State field for RPC."
+          },
+          "vscode-discord-rpc.editing.iconText": {
+            "type": "string",
+            "default": "Editing...",
+            "description": "Text when hovering over the icon."
+          },
+          "vscode-discord-rpc.idle.details": {
+            "type": "string",
+            "default": "Idle...",
+            "description": "Idle details field for RPC."
+          },
+          "vscode-discord-rpc.idle.state": {
+            "type": "string",
+            "default": "",
+            "description": "Idle state field for RPC."
+          },
+          "vscode-discord-rpc.idle.iconText": {
+            "type": "string",
+            "default": "Idling...",
+            "description": "Idle text when hovering over the icon."
+          }
+        }
+      }
     ]
   },
   "scripts": {

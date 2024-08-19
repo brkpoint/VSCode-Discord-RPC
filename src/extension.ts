@@ -1,40 +1,40 @@
 // VSCode API
 import * as vscode from "vscode";
 
+// Settings stuff
+// @ts-ignore
+import { getSettings, getInfo, parse } from "./modules/settings.mjs";
+
 // RPC
 // @ts-ignore
 import * as RPC from "./modules/rpc.mjs";
 
-/* -- RPC activity object --
-{
-	details: "",
-	state: "",
-	startTimestamp,
-	largeImageKey: "",
-	largeImageText: "",
-	smallImageKey: "",
-	smallImageTest: "",
-	instance: false,
-}
-*/
-
-// config
+// Config
 // @ts-ignore
 import config from "./config.json" assert { type: `json` };
 
-const startTimestamp = new Date();
+let settings: any;
 
-let statusBarItem: vscode.StatusBarItem;
+interface LooseObject {
+    [key: string]: any
+}
 
 // The extension has started
-export function activate({ subscriptions }: vscode.ExtensionContext) {
+export function activate({ subscriptions }: vscode.ExtensionContext): void {
 	console.log("VSCode RPC enabled");
+	config.extension.startTimestamp = new Date();
 
-	RPC.init({ clientId: config.application.id });
+	settings = getSettings();
+
+	RPC.init({ clientId: config.application.id, intervalTime: settings.updateTimeInterval * 1000 });
 	
 	// Adding a command "reloadRPC" ("vscode-discord-rpc." is the extension name)
 	const reloadCommand = "vscode-discord-rpc.reloadRPC";
-	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => RPC.reload()));
+	subscriptions.push(vscode.commands.registerCommand(reloadCommand, () => {
+		settings = getSettings();
+
+		RPC.reload({ intervalTime: settings.updateTimeInterval * 1000 });
+	}));
 
 	const stopCommand = "vscode-discord-rpc.stopRPC";
 	subscriptions.push(vscode.commands.registerCommand(stopCommand, () => RPC.stop()));
@@ -43,7 +43,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	subscriptions.push(vscode.window.onDidChangeActiveTextEditor(() => RPC.update()));
 	
 	// Adding a statusBarItem to status bar with the command "reloadRPC" and loading text
-	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+	let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
 	statusBarItem.text = "$(sync~spin) RPC Connecting...";
 	statusBarItem.command = reloadCommand;
 
@@ -59,58 +59,17 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 		statusBarItem.show();
 	});
 
+	RPC.on(RPC.Events.Reload, (rpc: any) => {
+		statusBarItem.text = "$(sync~spin) RPC Connecting...";
+		statusBarItem.show();
+	});
+
 	RPC.on(RPC.Events.Update, (rpc: any) => {
 		console.log("Updated RPC");
 
 		const editor = vscode.window.activeTextEditor;
 
-		// If the user is not editing the code
-		if (!editor) {
-			// Idle activity
-			rpc.setActivity({
-				details: "Ilde...",
-				startTimestamp,
-				largeImageKey: "vscode",
-				instance: false,
-			});
-
-			return;
-		}
-
-		// Only the file name and extension
-		const fileName = editor.document.fileName.split("/").at(-1);
-		const fileExtension = fileName?.split('.').at(-1) ?? "";
-
-		// Problems in current file
-		const problems = vscode.languages.getDiagnostics(editor.document.uri).length;
-
-		// Column and line of the file
-		const line = editor.selection.active.line + 1;
-		const col = editor.selection.active.character + 1;
-
-		// Icon ID for RPC
-		let iconId = editor.document.languageId;
-
-		// Correct spelling
-		const problemsSpelling = problems === 1 ? "" : "s";
-
-		// For some reason some files are marked as plain-text so we check file's extension
-		if (iconId === "plaintext") {
-			iconId = fileExtension;
-		}
-
-		// If we dont have the icon
-		if (!config.application.icons.includes(iconId)) {
-			iconId = "default";
-		}
-
-		rpc.setActivity({
-			details: `${vscode.workspace.name}`,
-			state: `${fileName}:${line}:${col} - ${problems} problem${problemsSpelling}`,
-			startTimestamp,
-			largeImageKey: iconId,
-			instance: false,
-		});
+		rpc.setActivity(getActivity(editor, config));
 	});
 
 	RPC.on(RPC.Events.Stop, (rpc: any) => {
@@ -123,14 +82,57 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	RPC.on(RPC.Events.Error, (error: any) => {
 		console.error(error);
 
+		if (error.message === "RPC_CONNECTION_TIMEOUT") {
+			vscode.window.showErrorMessage("RPC connection timeout");
+		}
+
 		statusBarItem.text = "$(error) RPC Not connected";
 		statusBarItem.show();
 	});
 }
 
 // The extension has stopped
-export function deactivate() {
+export function deactivate(): void {
 	RPC.stop();
 	
 	console.log("Bye!");
+}
+
+// Helper function
+function getActivity(editor: vscode.TextEditor | undefined, config: any): Object {
+	const info = getInfo(editor, config);
+
+	let activity: LooseObject = {
+		largeImageKey: "vscode",
+		instance: false,
+	};
+
+	if (settings.showTime) {
+		activity.startTimestamp = config.extension.startTimestamp;
+	}
+
+	// If the user is not editing code
+	if (!editor) {
+		activity.details = parse(settings.idle.details, info) ?? "Idle...";
+		activity.largeImageText = parse(settings.idle.iconText, info) ?? "Idling...";
+
+		if (settings.idle.state) {
+			activity.state = parse(settings.idle.state, info);
+		}
+
+		return activity;
+	}
+
+	activity.details = parse(settings.editing.details, info) ?? info.workspaceName;
+	activity.largeImageText = parse(settings.editing.iconText, info) ?? "Editing...";
+
+	if (settings.editing.state) {
+		activity.state = parse(settings.editing.state, info);
+	}
+
+	if (settings.editing.showLanguageIcons) {
+		activity.largeImageKey = info.iconId;
+	}
+
+	return activity;
 }

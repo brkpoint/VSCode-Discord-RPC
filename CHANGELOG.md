@@ -1,8 +1,17 @@
 # Change Log
 
+## [1.1.0] - 2023-08-18/19
+### Added
+- Settings for extension
+- New module 'settings.mjs'
+- Custom RPC fields and icon customizaton
+- Hot reload for settings
+### Fixed
+- Error handling
+
 ## [1.0.1] - 2023-08-17
 ### Fixed
-- fixed bug.
+- Fixed bug.
 
 ## [1.0.0] - 2023-08-17
 ### Added

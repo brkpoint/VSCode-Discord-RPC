@@ -6,9 +6,23 @@ const discordRPC = require("discord-rpc");
 
 // RPC
 let rpc;
+/* -- RPC activity object --
+{
+	details: "",
+	state: "",
+	startTimestamp,
+	largeImageKey: "",
+	largeImageText: "",
+	smallImageKey: "",
+	smallImageTest: "",
+	instance: false,
+}
+*/
 
 // Interval for updating RPC
 let interval;
+
+let clientId;
 
 let config;
 
@@ -19,6 +33,7 @@ const Events = {
     Error: "error",
     Ready: "ready",
     Stop: "stop",
+    Reload: "reload",
     Update: "update",
 };
 
@@ -39,8 +54,7 @@ function createRPC() {
 		}, config.intervalTime ?? 15_000);
 	});
 
-
-    rpc.login({ clientId: config.clientId }).catch((error) => emitter.emit(Events.Error, error));
+    rpc.login({ clientId: clientId }).catch((error) => emitter.emit(Events.Error, error));
 }
 
 // Initalize RPC
@@ -51,26 +65,33 @@ function init(options) {
         return;
     }
 
-    if (options.clientId === null) {
+    if (!options.clientId) {
+        console.error("ID of the client wasnt set!");
+        return;
+    }
+
+    config = options;
+    clientId = options.clientId;
+
+    discordRPC.register(clientId);
+
+    createRPC();
+}
+
+// Reload connection
+function reload(options) {
+    if (!config.clientId) {
         console.error("ID of the client wasnt set!");
         return;
     }
 
     config = options;
 
-    discordRPC.register(config.clientId);
+    interval = null;
 
     createRPC();
-}
 
-// Reload connection
-function reload() {
-    if (options.clientId === null) {
-        console.error("ID of the client wasnt set!");
-        return;
-    }
-
-    createRPC();
+    emitter.emit(Events.Reload, rpc);
 }
 
 // Stop connection
