@@ -23,7 +23,10 @@ let rpc;
 let interval;
 
 // Config of RPC
-let config;
+let config = {
+    clientId: null,
+    options: null,
+};
 
 // Events stuff
 const emitter = new MyEmitter();
@@ -52,7 +55,9 @@ function init(options) {
         return;
     }
 
-    config = options;
+    config.clientId = options.clientId;
+    delete options.clientId;
+    config.options = options;
 
     discordRPC.register(config.clientId);
 
@@ -66,9 +71,8 @@ function reload(options) {
         return;
     }
 
-    let id = config.clientId;
-    config = options;
-    config.clientId = id;
+    delete options.clientId;
+    config.options = options;
 
     interval = null;
 
@@ -84,18 +88,13 @@ function stop() {
         return;
     }
     
+	// Removing the interval from running
+	clearInterval(interval);
+	interval = null;
     
     // Destroying the rpc
 	rpc.destroy();
 	rpc = null;
-    
-    if (!interval) {
-        return;
-    }
-    
-	// Removing the interval from running
-	clearInterval(interval);
-	interval = null;
     
     emitter.emit(Events.Stop);
 }
@@ -120,10 +119,11 @@ function createRPC() {
     
     rpc.on("ready", () => {
         emitter.emit(Events.Ready, rpc);
-		update();
 
+        update();
+        
 		interval = setInterval(() => {
-			update();
+            update();
 		}, config.intervalTime ?? 15_000);
 	});
 

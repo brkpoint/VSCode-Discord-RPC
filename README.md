@@ -68,7 +68,10 @@ Same as `vscode-discord-rpc.editing.iconText`
 None at the moment.
 
 ## Release Notes
-No bugs with this update I guess...
+More rpc bug fixes for stopping, reloading and starting commands. Maybe some code refactoring.
+
+### 1.1.3
+More bug fixes for the rpc, added 'commands.ts' module for command seperation and easier command creation
 
 ### 1.1.2
 Bug fixes and error handling.

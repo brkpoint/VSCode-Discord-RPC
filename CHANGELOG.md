@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.1.3] - 2030-08-20
+### Updated
+- `statusBarItem.command` so its dynamic (reloads when RPC is on, starts it when it isnt)
+### Fixed
+- Commands bug for reloading
+
 ## [1.1.2] - 2023-08-20
 ### Updated
 - Error handling in 'rpc.mjs'
