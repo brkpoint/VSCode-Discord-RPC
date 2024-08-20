@@ -152,6 +152,10 @@ function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 			vscode.window.showErrorMessage("RPC connection timeout");
 		}
 
+		if (RPC.getRPC()) {
+			return;
+		}
+
 		statusBarItem.text = "$(error) RPC Not connected";
 		statusBarItem.show();
 	});
