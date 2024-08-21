@@ -11,7 +11,12 @@ This is an extension for vscode to display custom discord rpc.
 
 ## Requirements
 - Discord installed
+- [Activity enabled in discord](#activity-setting-in-discord)
 - [discord-rpc](https://www.npmjs.com/package/discord-rpc#discordjs-rpc-extension) package
+
+### Activity setting in discord
+#### Enabling the activity:
+First go to settings, then scroll down to category `ACTIVITY SETTINGS`. After that click on `Activity Privacy` and enable `Share detected activities with others`.
 
 ## Extension Settings
 String to format | Description
@@ -65,7 +70,7 @@ Same as `vscode-discord-rpc.editing.state`
 Same as `vscode-discord-rpc.editing.iconText`
 
 ## Known Issues
-None at the moment.
+When discord is restarted with RPC on in VSCode it disappears.
 
 ## Release Notes
 More rpc bug fixes for stopping, reloading and starting commands. Maybe some code refactoring.
