@@ -1,5 +1,16 @@
 # Change Log
 
+## [1.1.5] - 2030-08-22
+### Added
+- `setActivity` function to 'rpc.mjs'
+- Error `RPC_CONNECTION_TIMEOUT` to discord's activity promise timeout
+### Fixed
+- Discord reloading bug.
+
+## [1.1.4] - 2030-08-20
+### Updated
+- 'rpc.mjs'
+
 ## [1.1.3] - 2030-08-20
 ### Updated
 - `statusBarItem.command` so its dynamic (reloads when RPC is on, starts it when it isnt)

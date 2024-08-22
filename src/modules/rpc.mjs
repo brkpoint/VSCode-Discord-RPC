@@ -1,23 +1,22 @@
 import EventEmitter from "node:events";
 class MyEmitter extends EventEmitter {}
 
+Promise.timeout = function(promise, timeoutInMilliseconds){
+    return Promise.race([
+        promise, 
+        new Promise(function(resolve, reject){
+            setTimeout(function() {
+                reject("timeout");
+            }, timeoutInMilliseconds);
+        })
+    ]);
+};
+
 // Discord RPC api
 const discordRPC = require("discord-rpc");
 
 // RPC
 let rpc;
-/* -- RPC activity object --
-{
-	details: "",
-	state: "",
-	startTimestamp,
-	largeImageKey: "",
-	largeImageText: "",
-	smallImageKey: "",
-	smallImageTest: "",
-	instance: false,
-}
-*/
 
 // Interval for updating RPC
 let interval;
@@ -109,17 +108,33 @@ function update() {
     emitter.emit(Events.Update, rpc);
 }
 
+async function setActivity(activity) {
+    const promise = rpc.setActivity(activity);
+
+    await Promise.timeout(promise, 2000).catch((err) => {
+        if (err === "timeout") {
+            emitter.emit(Events.Error, new Error("RPC_CONNECTION_TIMEOUT"));
+
+            stop();
+            createRPC();
+            return;
+        }
+
+        emitter.emit(Events.Error, err);
+    });
+}
+
 function getRPC() {
     return rpc;
 }
 
 // Helper function
-function createRPC() {
+async function createRPC() {
 	rpc = new discordRPC.Client({ transport: 'ipc' });
     
     rpc.on("ready", () => {
         emitter.emit(Events.Ready, rpc);
-
+        
         update();
         
 		interval = setInterval(() => {
@@ -127,7 +142,7 @@ function createRPC() {
 		}, config.intervalTime ?? 15_000);
 	});
 
-    rpc.login({ clientId: config.clientId }).catch((error) => emitter.emit(Events.Error, error));
+    await rpc.login({ clientId: config.clientId }).catch((error) => emitter.emit(Events.Error, error));
 }
 
-export { init, reload, stop, update, on, getRPC, Events };
+export { init, reload, stop, update, on, setActivity, getRPC, Events };

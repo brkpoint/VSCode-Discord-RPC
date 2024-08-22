@@ -1,4 +1,4 @@
-### 1.1.3 VSCode-Discord-RPC
+### 1.1.5 VSCode-Discord-RPC
 This is an extension for vscode to display custom discord rpc.
 
 ### [Versioning](https://semver.org/#semantic-versioning-200)
@@ -8,6 +8,7 @@ This is an extension for vscode to display custom discord rpc.
 - Language icon display, displays the language icon in the RPC
 - Time elapsed, self explanatory
 - Problems, Problems in file currently worked on
+- Automatic restart when discord disconnects
 
 ## Requirements
 - Discord installed
@@ -70,10 +71,16 @@ Same as `vscode-discord-rpc.editing.state`
 Same as `vscode-discord-rpc.editing.iconText`
 
 ## Known Issues
-When discord is restarted with RPC on in VSCode it disappears.
+None.
 
 ## Release Notes
-More rpc bug fixes for stopping, reloading and starting commands. Maybe some code refactoring.
+More features to add and more bug fixes.
+
+### 1.1.5
+Fixed discord reloading bug. 
+
+### 1.1.4
+Some code things.
 
 ### 1.1.3
 More bug fixes for the rpc, added 'commands.ts' module for command seperation and easier command creation

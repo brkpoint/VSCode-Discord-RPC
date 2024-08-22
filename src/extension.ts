@@ -134,7 +134,7 @@ function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 	RPC.on(RPC.Events.Update, (rpc: any) => {
 		console.log("Updated RPC");
 
-		rpc.setActivity(getActivity(vscode.window.activeTextEditor, config));
+		RPC.setActivity(getActivity(vscode.window.activeTextEditor, config));
 	});
 
 	RPC.on(RPC.Events.Stop, (rpc: any) => {
@@ -145,11 +145,12 @@ function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 	});
 
 	RPC.on(RPC.Events.Error, (error: any) => {
-		console.error(error);
-
 		// If connection timeout show the message to the user
 		if (error.message === "RPC_CONNECTION_TIMEOUT") {
 			vscode.window.showErrorMessage("RPC connection timeout");
+			console.log(error.message);
+		} else {
+			console.error(error);
 		}
 
 		if (RPC.getRPC()) {
