@@ -145,16 +145,13 @@ function registerRpcEvents(statusBarItem: vscode.StatusBarItem): void {
 	});
 
 	RPC.on(RPC.Events.Error, (error: any) => {
+		console.error(error.message);
+
 		// If connection timeout show the message to the user
 		if (error.message === "RPC_CONNECTION_TIMEOUT") {
 			vscode.window.showErrorMessage("RPC connection timeout");
-			console.log(error.message);
-		} else {
-			console.error(error);
-		}
-
-		if (RPC.getRPC()) {
-			return;
+		} else if (error.message === "Could not connect") {
+			vscode.window.showErrorMessage("RPC could not connect");
 		}
 
 		statusBarItem.text = "$(error) RPC Not connected";

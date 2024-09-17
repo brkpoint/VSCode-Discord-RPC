@@ -21,6 +21,10 @@ let rpc;
 // Interval for updating RPC
 let interval;
 
+// Times timeouts occured
+let timeouts = 0;
+let timeoutInterval;
+
 // Config of RPC
 let config = {
     clientId: null,
@@ -112,15 +116,25 @@ async function setActivity(activity) {
     const promise = rpc.setActivity(activity);
 
     await Promise.timeout(promise, 2000).catch((err) => {
-        if (err === "timeout") {
-            emitter.emit(Events.Error, new Error("RPC_CONNECTION_TIMEOUT"));
-
-            stop();
-            createRPC();
+        if (err !== "timeout") {
+            emitter.emit(Events.Error, err);
             return;
         }
 
-        emitter.emit(Events.Error, err);
+        emitter.emit(Events.Error, new Error("RPC_CONNECTION_TIMEOUT"));
+
+        stop();
+
+        timeoutInterval = setInterval(() => require('dns').resolve('www.google.com', (err) => {
+            // Checking if we can connect to the internet and if we tried less then 3 times
+            if (!err && timeouts < 3) {
+                // Each try makes the delay bigger
+                setTimeout(() => createRPC(), 8000 * timeouts);
+                clearInterval(timeoutInterval);
+            }
+        }), 2000);
+
+        timeouts++;
     });
 }
 
@@ -130,9 +144,13 @@ function getRPC() {
 
 // Helper function
 async function createRPC() {
+    console.log("Creating RPC...");
+
 	rpc = new discordRPC.Client({ transport: 'ipc' });
     
     rpc.on("ready", () => {
+        timeouts = 0;
+
         emitter.emit(Events.Ready, rpc);
         
         update();

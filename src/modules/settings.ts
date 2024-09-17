@@ -32,6 +32,7 @@ function getInfo(editor: any, config: any) {
 
     // Icon ID for RPC
     let iconId = fileType;
+    // console.log(iconId);
 
     // For some reason some files are marked as plain-text so we check file's extension
     if (iconId === "plaintext") {

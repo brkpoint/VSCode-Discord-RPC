@@ -74,7 +74,10 @@ Same as `vscode-discord-rpc.editing.iconText`
 None.
 
 ## Release Notes
-More features to add and more bug fixes.
+Timeout spam (in vscode error boxes) fixed and auto-reconnect added.
+
+### 1.1.6
+Timeout stuff fixed and working
 
 ### 1.1.5
 Fixed discord reloading bug. 
