@@ -130,9 +130,8 @@ dist
 .pnp.*
 
 # Own directories
-.test/
 icons/
-extt/
+md/
 
 # Own files
 .DS_Store

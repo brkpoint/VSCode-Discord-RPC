@@ -1,0 +1,242 @@
+import * as vscode from 'vscode';
+
+import { RPCData, RPCHandle } from './rpc';
+
+import { Logger } from './extension.logger';
+import { Config } from './extension.config';
+
+import { getIconId } from './extension.workspace';
+
+import { ExtensionElements } from './extension.elements';
+import {
+    handleStatusItemCommand,
+    handleStartRpcCommand,
+    handleStopRpcCommand,
+    handleReloadRpcCommand,
+} from './extension.commands';
+
+let elements: ExtensionElements;
+let handle: RPCHandle;
+
+let startTimestamp: number = Date.now(); // Start of the vscode session
+let rpcData: RPCData = new RPCData('Visual Studio Code');
+
+// RPC Update //
+// Update RPC with the current vscode's data.
+
+// Sets all the variables needed for rpc.
+function presence(settings: any) {
+    const details = Config.parse(settings.details);
+    if (details) {
+        rpcData.setTitle(details);
+    }
+
+    const state = Config.parse(settings.state);
+    if (state) {
+        rpcData.setDescription(state);
+    }
+
+    const iconText = Config.parse(settings.iconText);
+    if (iconText) {
+        rpcData.setLargeImageText(iconText);
+    }
+
+    if (settings.showLanguageIcons) {
+        const icon = getIconId() ?? 'vscode';
+
+        rpcData.setLargeImage(icon);
+    }
+}
+
+// Update the data and get the current presence.
+function rpcDataUpdate() {
+    rpcData = new RPCData('Visual Studio Code').setLargeImage('vscode');
+
+    const extSettings = Config.get().extension.settings;
+    let settings = extSettings.idle;
+
+    if (extSettings.showTime) {
+        rpcData.setTimestampStart(startTimestamp);
+    }
+
+    if (vscode.window.activeTextEditor) {
+        settings = extSettings.editing;
+    }
+
+    presence(settings);
+}
+
+// RPC Events //
+// Handlers for RPC connection that controll what happens with 'barItem', logs and vscode popup errors.
+
+async function handleRpcUpdates() {
+    rpcDataUpdate();
+
+    handle.update(rpcData);
+}
+
+function handleRpcConnect() {
+    const username = handle.getUsername();
+    if (!username) {
+        return;
+    }
+
+    const displayName = handle.getDisplayName();
+    if (!displayName) {
+        return;
+    }
+
+    Logger.log(`Connected to discord with user: ${username}.`);
+
+    elements.get(
+        'statusItem',
+    ).text = `$(pass-filled) ${displayName} connected.`;
+}
+
+function handleRpcDisconnect() {
+    Logger.info(`Connection disconnected.`);
+
+    elements.get('statusItem').text = '$(error) RPC disconnected';
+}
+
+// RPC Init //
+// Initialization of 'RPCHandler' and if the connection fails it handles it.
+
+function connectionFailed() {
+    Logger.warn('Failed to connect to discord.');
+
+    elements.get('statusItem').text = '$(error) RPC not connected';
+    vscode.window.showErrorMessage('RPC could not connect.');
+}
+
+async function initRpc() {
+    handle = new RPCHandle(
+        Config.get().rpc.applicationId,
+        handleRpcConnect,
+        handleRpcDisconnect,
+        handleRpcUpdates,
+        Config.get().extension.settings.updateTimeInterval * 1000,
+    );
+
+    let connected: boolean = await handle.connect(false);
+
+    if (!connected) {
+        connectionFailed();
+        return;
+    }
+
+    handleRpcUpdates();
+}
+
+// Init vscode commands, events, elements //
+// Initializes all needed commands, events and elements.
+// Initialized commands:
+//  - startRPC   (starts RPC from vscode command line)
+//  - stopRPC    (stops RPC if it is connected)
+//  - reloadRPC  (restarts the rpc interval with new (or old) milliseconds)
+//  - statusItem (handles the behaviour of the 'statusItem' element)
+// Initialized events:
+//  - windowChangeEvent (if the user switches to a diffrent file the event will be called)
+// Initialized elements:
+//  - statusItem (item in the bar at the bottom of the editor)
+
+function initCommands() {
+    const extensionName = Config.get().extension.name;
+
+    const startRpc = `${extensionName}.startRPC`;
+    elements.add(
+        startRpc,
+        vscode.commands.registerCommand(startRpc, () => {
+            handleStartRpcCommand(elements, handle, initRpc);
+        }),
+    );
+
+    const stopRpc = `${extensionName}.stopRPC`;
+    elements.add(
+        stopRpc,
+        vscode.commands.registerCommand(stopRpc, () => {
+            handleStopRpcCommand(elements, handle);
+        }),
+    );
+
+    const reloadRpc = `${extensionName}.reloadRPC`;
+    elements.add(
+        reloadRpc,
+        vscode.commands.registerCommand(reloadRpc, () => {
+            handleReloadRpcCommand(elements, handle);
+        }),
+    );
+
+    const barItem = `${extensionName}.statusItem`;
+    elements.add(
+        barItem,
+        vscode.commands.registerCommand(barItem, () => {
+            handleStatusItemCommand(elements, handle, initRpc);
+        }),
+    );
+}
+
+function initEvents() {
+    elements.add(
+        'windowChangeEvent',
+        vscode.window.onDidChangeActiveTextEditor(() => handleRpcUpdates()),
+    );
+}
+
+function initRpcStatusItem(): vscode.StatusBarItem {
+    let statusBarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Left,
+        0,
+    );
+
+    statusBarItem.text = '$(sync~spin) RPC Connecting...';
+    statusBarItem.command = `${Config.get().extension.name}.barItem`;
+
+    statusBarItem.show();
+
+    return statusBarItem;
+}
+
+function initElements() {
+    elements.add('statusItem', initRpcStatusItem());
+}
+
+// Initialize all items
+function initVSCElements() {
+    Logger.info('Initializing commands.');
+    initCommands();
+
+    Logger.info('Initializing events.');
+    initEvents();
+
+    Logger.info('Initializing elements.');
+    initElements();
+
+    Logger.log('Elements initalized.');
+}
+
+// VSCode entry and exit points //
+// Default vscode's extension entry point and exit point.
+
+export async function activate({
+    subscriptions,
+}: vscode.ExtensionContext): Promise<void> {
+    Logger.log('Extension activated.');
+
+    Config.load();
+
+    elements = new ExtensionElements(subscriptions);
+    initVSCElements();
+
+    Logger.log('Initializing RPC...');
+    await initRpc();
+}
+
+export function deactivate(): void {
+    if (handle.isConnected()) {
+        handle.disconnect();
+        Logger.log('RPC disconnected.');
+    }
+
+    Logger.log('Stopping the extension.');
+}

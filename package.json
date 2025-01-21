@@ -1,120 +1,121 @@
 {
-  "name": "vscode-discord-rpc",
-  "icon": "icon.png",
-  "publisher": "brkpointdotorg",
-  "displayName": "Custom Discord RPC",
-  "description": "Custom vscode RPC for discord",
-  "repository": {
-    "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
-  },
-  "version": "1.1.5",
-  "engines": {
-    "vscode": "^1.92.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vscode-discord-rpc.startRPC",
-        "title": "Start RPC"
-      },
-      {
-        "command": "vscode-discord-rpc.stopRPC",
-        "title": "Stop RPC"
-      },
-      {
-        "command": "vscode-discord-rpc.reloadRPC",
-        "title": "Reload RPC"
-      }
+    "name": "vscode-discord-rpc",
+    "icon": "icon.png",
+    "publisher": "brkpointdotorg",
+    "displayName": "Custom Discord RPC",
+    "description": "Custom vscode RPC for discord",
+    "repository": {
+        "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
+    },
+    "version": "1.1.7",
+    "engines": {
+        "vscode": "^1.92.0"
+    },
+    "categories": [
+        "Other"
     ],
-    "configuration": [
-      {
-        "title": "VSCode Discord RPC",
-        "properties": {
-          "vscode-discord-rpc.showTime": {
-            "order": 0,
-            "type": "boolean",
-            "default": true,
-            "description": "Enable/Disable time elapsed."
-          },
-          "vscode-discord-rpc.updateTimeInterval": {
-            "order": 1,
-            "type": "number",
-            "default": 12,
-            "description": "Update time for interval in seconds."
-          },
-          "vscode-discord-rpc.editing.showLanguageIcons": {
-            "order": 2,
-            "type": "boolean",
-            "default": true,
-            "description": "Enable/Disable language icon of current file"
-          },
-          "vscode-discord-rpc.editing.details": {
-            "type": "string",
-            "default": "$(workspace)",
-            "description": "Details field for RPC."
-          },
-          "vscode-discord-rpc.editing.state": {
-            "type": "string",
-            "default": "$(fileName):$(line):$(col) - $(problems)",
-            "description": "State field for RPC."
-          },
-          "vscode-discord-rpc.editing.iconText": {
-            "type": "string",
-            "default": "Editing...",
-            "description": "Text when hovering over the icon."
-          },
-          "vscode-discord-rpc.idle.details": {
-            "type": "string",
-            "default": "Idle...",
-            "description": "Idle details field for RPC."
-          },
-          "vscode-discord-rpc.idle.state": {
-            "type": "string",
-            "default": "",
-            "description": "Idle state field for RPC."
-          },
-          "vscode-discord-rpc.idle.iconText": {
-            "type": "string",
-            "default": "Idling...",
-            "description": "Idle text when hovering over the icon."
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.7",
-    "@types/node": "20.x",
-    "@types/vscode": "^1.92.0",
-    "@typescript-eslint/eslint-plugin": "^7.14.1",
-    "@typescript-eslint/parser": "^7.11.0",
-    "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.4.0",
-    "eslint": "^8.57.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "discord-rpc": "^4.0.1"
-  }
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "vscode-discord-rpc.startRPC",
+                "title": "Start RPC"
+            },
+            {
+                "command": "vscode-discord-rpc.stopRPC",
+                "title": "Stop RPC"
+            },
+            {
+                "command": "vscode-discord-rpc.reloadRPC",
+                "title": "Reload RPC"
+            }
+        ],
+        "configuration": [
+            {
+                "title": "VSCode Discord RPC",
+                "properties": {
+                    "vscode-discord-rpc.showTime": {
+                        "order": 0,
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable/Disable time elapsed."
+                    },
+                    "vscode-discord-rpc.updateTimeInterval": {
+                        "order": 1,
+                        "type": "number",
+                        "default": 12,
+                        "description": "Update time for interval in seconds."
+                    },
+                    "vscode-discord-rpc.editing.showLanguageIcons": {
+                        "order": 2,
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable/Disable language icon of current file"
+                    },
+                    "vscode-discord-rpc.editing.details": {
+                        "type": "string",
+                        "default": "$(workspace)",
+                        "description": "Details field for RPC."
+                    },
+                    "vscode-discord-rpc.editing.state": {
+                        "type": "string",
+                        "default": "$(fileName):$(line):$(col) - $(problems)",
+                        "description": "State field for RPC."
+                    },
+                    "vscode-discord-rpc.editing.iconText": {
+                        "type": "string",
+                        "default": "Editing...",
+                        "description": "Text when hovering over the icon."
+                    },
+                    "vscode-discord-rpc.idle.details": {
+                        "type": "string",
+                        "default": "Idle...",
+                        "description": "Idle details field for RPC."
+                    },
+                    "vscode-discord-rpc.idle.state": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Idle state field for RPC."
+                    },
+                    "vscode-discord-rpc.idle.iconText": {
+                        "type": "string",
+                        "default": "Idling...",
+                        "description": "Idle text when hovering over the icon."
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "compile": "webpack",
+        "watch": "webpack --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "npm run compile-tests && npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.7",
+        "@types/node": "20.x",
+        "@types/vscode": "^1.92.0",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.11.0",
+        "@vscode/test-cli": "^0.0.9",
+        "@vscode/test-electron": "^2.4.0",
+        "eslint": "^8.57.0",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.4.5",
+        "webpack": "^5.92.1",
+        "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "glob": "^11.0.1",
+        "ws": "^8.18.0"
+    }
 }
