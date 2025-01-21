@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.1.7] -
+## [1.1.6] - 2025-01-21
 
 -   rewritten the whole extension
 -   cleaner code
@@ -18,16 +18,6 @@
 -   'rpc timeout' or 'rpc disconnected' spam
 -   commands not responding
 -   errors
-
-## [1.1.6] - 2024-09-17
-
-### Added
-
--   automatic timeout reconnect (if internet is avaiable and after discord is open)
-
-### Fixed
-
--   timeout spam
 
 ## [1.1.5] - 2024-08-22
 
