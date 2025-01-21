@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.1.1] - 2025-01-21
+
+### Added
+
+-   IPC pipe's path caching
+-   clearing cache
+-   automatic debbuger switcher (it turns off when its prod)
+
 ## [2.0.1] - 2025-01-21
 
 -   rewritten the whole extension

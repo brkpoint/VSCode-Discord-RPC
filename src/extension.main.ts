@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
 
 import { RPCData, RPCHandle } from './rpc';
-
 import { Logger } from './extension.logger';
 import { Config } from './extension.config';
-
 import { getIconId } from './extension.workspace';
-
+import { Cacher } from './extension.caching';
 import { ExtensionElements } from './extension.elements';
 import {
     handleStatusItemCommand,
     handleStartRpcCommand,
     handleStopRpcCommand,
+    handleClearAllCacheCommand,
     handleReloadRpcCommand,
 } from './extension.commands';
 
+let cacher: Cacher;
 let elements: ExtensionElements;
 let handle: RPCHandle;
 
@@ -99,6 +99,16 @@ function handleRpcDisconnect() {
     elements.get('statusItem').text = '$(error) RPC disconnected';
 }
 
+// Caching helper functions //
+
+function setCache(key: string, data: any) {
+    cacher.setCache(key, data);
+}
+
+function getCache<T>(key: string): T | undefined {
+    return cacher.getCache<T>(key);
+}
+
 // RPC Init //
 // Initialization of 'RPCHandler' and if the connection fails it handles it.
 
@@ -116,6 +126,9 @@ async function initRpc() {
         handleRpcDisconnect,
         handleRpcUpdates,
         Config.get().extension.settings.updateTimeInterval * 1000,
+        true,
+        setCache,
+        getCache,
     );
 
     let connected: boolean = await handle.connect(false);
@@ -164,6 +177,14 @@ function initCommands() {
         reloadRpc,
         vscode.commands.registerCommand(reloadRpc, () => {
             handleReloadRpcCommand(elements, handle);
+        }),
+    );
+
+    const clearCache = `${extensionName}.clearAllCache`;
+    elements.add(
+        clearCache,
+        vscode.commands.registerCommand(clearCache, () => {
+            handleClearAllCacheCommand(elements, handle, cacher);
         }),
     );
 
@@ -218,14 +239,18 @@ function initVSCElements() {
 // VSCode entry and exit points //
 // Default vscode's extension entry point and exit point.
 
-export async function activate({
-    subscriptions,
-}: vscode.ExtensionContext): Promise<void> {
+export async function activate(
+    context: vscode.ExtensionContext,
+): Promise<void> {
     Logger.log('Extension activated.');
 
+    Logger.info('Loading config...');
     Config.load();
 
-    elements = new ExtensionElements(subscriptions);
+    Logger.info('Setting up extension...');
+    cacher = new Cacher(context);
+    elements = new ExtensionElements(context.subscriptions);
+
     initVSCElements();
 
     Logger.log('Initializing RPC...');

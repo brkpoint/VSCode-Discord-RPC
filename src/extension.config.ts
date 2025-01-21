@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+
 import { LooseObject } from './utils';
 import {
     getWorkspaceName,
@@ -55,7 +56,7 @@ class ConfigClass {
 
     // Logger settings
     logger = {
-        debug: false, // print all
+        debug: process.env.NODE_ENV !== 'production',
         disabledMessages: 1, // print except
     };
 

@@ -1,3 +1,4 @@
+import { Cacher } from './extension.caching';
 import { Config } from './extension.config';
 import { ExtensionElements } from './extension.elements';
 import { Logger } from './extension.logger';
@@ -57,6 +58,20 @@ export async function handleReloadRpcCommand(
     handle.reload(Config.get().extension.settings.updateTimeInterval * 1000);
 
     Logger.log('Reloaded RPC.');
+}
+
+/**
+ * @param {ExtensionElements} elements
+ * @param {RPCHandle} handle
+ * @param {Cacher} cacher
+ * @description Clears extensions cache.
+ */
+export async function handleClearAllCacheCommand(
+    elements: ExtensionElements,
+    handle: RPCHandle,
+    cacher: Cacher,
+) {
+    cacher.clearAllCache();
 }
 
 /**

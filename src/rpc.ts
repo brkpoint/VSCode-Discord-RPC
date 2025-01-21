@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as net from 'net';
 import { globSync } from 'glob';
@@ -18,16 +19,32 @@ class RPCCommunication {
     private socket: any;
     private websocket: any;
 
-    private reciverHandler: Function;
+    private reciverHandler: (type: number, op: number, payload: any) => any;
+
+    private cachingEnabled: boolean;
+    private setCache: ((key: string, data: any) => void) | undefined;
+    private getCache: (<T>(key: string) => T | undefined) | undefined;
 
     /**
      * @param {boolean} isWebsocket Is the connection throught a websocket.
      * @param {Function} reciverHandler Data reciver handler.
+     * @param {boolean} cachingEnabled If caching is enabled, mostly used for caching paths. (default undefined)
+     * @param {Function | undefined} cacheFunction Function used to cache. (default undefined)
      */
-    constructor(isWebsocket: boolean, reciverHandler: Function) {
+    constructor(
+        isWebsocket: boolean,
+        reciverHandler: (type: number, op: number, payload: any) => any,
+        cachingEnabled: boolean,
+        setCache: ((key: string, data: any) => any) | undefined,
+        getCahce: (<T>(key: string) => T | undefined) | undefined,
+    ) {
         this.isWebsocket = isWebsocket;
 
         this.reciverHandler = reciverHandler;
+
+        this.cachingEnabled = cachingEnabled;
+        this.setCache = setCache;
+        this.getCache = getCahce;
     }
 
     /**
@@ -109,31 +126,89 @@ class RPCCommunication {
     }
 
     /**
-     * @description TODO
+     * @param {string} path Path that will be cached.
+     * @description Caches the path for later use.
      */
-    private cacheIpcPath() {}
+    private cacheIpcPath(path: string) {
+        if (!this.cachingEnabled) {
+            return;
+        }
+
+        if (!this.setCache) {
+            return;
+        }
+
+        this.setCache('discordIpcPipePath', path);
+    }
+
+    /**
+     * @description Gets the cached IPC path.
+     * @returns {string | undefined} Path to IPC.
+     */
+    private getCachedIpcPath(): string | undefined {
+        if (!this.cachingEnabled) {
+            return;
+        }
+
+        if (!this.getCache) {
+            return;
+        }
+
+        const path = this.getCache<string>('discordIpcPipePath');
+
+        return path;
+    }
 
     /**
      * @description Finds a path in the system files.
-     * @returns {string | null} Path to the discord's IPC pipe.
      */
-    private deepFindIpcPath(): string | null {
+    private searchForPath(): string | undefined {
+        let path = undefined;
+
         if (process.platform === 'darwin') {
-            const result = globSync(
-                '/private/var/folders/**/*discord-ipc-*',
-            )[0];
-            this.cacheIpcPath();
-            return result;
+            path = '/private/var/folders/**/*discord-ipc-*';
         }
 
-        return null;
+        if (!path) {
+            return;
+        }
+
+        const results = globSync(path);
+
+        if (results.length === 0) {
+            return;
+        }
+
+        return results[0];
+    }
+
+    /**
+     * @description Finds the path in the system or if it is already cached it skips finding it.
+     * @returns {string | undefined} Path to the discord's IPC pipe.
+     */
+    private deepFindIpcPath(): string | undefined {
+        const cachedPath = this.getCachedIpcPath();
+
+        if (cachedPath && fs.existsSync(cachedPath)) {
+            return cachedPath;
+        }
+
+        const foundPath = this.searchForPath();
+
+        if (!foundPath) {
+            return;
+        }
+
+        this.cacheIpcPath(foundPath);
+
+        return foundPath;
     }
 
     /**
      * @description Find IPC pipe path in known folders.
-     * @returns {string | null} Path to the discord's IPC pipe.
+     * @returns {string | undefined} Path to the universal discord's IPC pipe.
      */
-    private findIpcPath(): string | null {
+    private findIpcPath(): string | undefined {
         let ipcPath = process.platform === 'win32' ? '\\\\.\\pipe\\' : '/tmp/';
         const versions = ['discord-ipc-0', 'discord-ipc-1'];
 
@@ -543,26 +618,36 @@ export class RPCHandle {
     private communication: RPCCommunication | undefined;
     private presenceLastUpdateObject: RPCData | undefined;
 
-    private connectHandler: Function;
-    private disconnectHandler: Function;
-    private updateHandler: Function;
+    private connectHandler: (handle: RPCHandle) => any;
+    private disconnectHandler: (handle: RPCHandle) => any;
+    private updateHandler: (handle: RPCHandle) => any;
 
     private updateInterval: any;
     private updateIntervalMS: number;
+
+    private cachingEnabled: boolean;
+    private setCache: ((key: string, data: any) => void) | undefined;
+    private getCache: (<T>(key: string) => T | undefined) | undefined;
 
     /**
      * @param {string} applicationId ID for the application that contains all the images for RPC.
      * @param {Function} connectHandler Function is called when the RPC connects successfully.
      * @param {Function} disconnectHandler Function is called when the RPC disconnects.
      * @param {Function} updateHandler Function is called when the updateInterval updates.
-     * @param {number} updateIntervalMS Time between updates in the milliseconds.
+     * @param {number} updateIntervalMS Time between updates in the milliseconds. (default 12_000)
+     * @param {boolean} cachingEnabled Is caching enabled for the RPC. (default false)
+     * @param {Function} setCache Function used for caching RPC paths and data. (default undefined)
+     * @param {Function} getCache Function used for getting RPC paths and data cache. (default undefined)
      */
     constructor(
         applicationId: string,
-        connectHandler: Function,
-        disconnectHandler: Function,
-        updateHandler: Function,
+        connectHandler: (handle: RPCHandle) => any,
+        disconnectHandler: (handle: RPCHandle) => any,
+        updateHandler: (handle: RPCHandle) => any,
         updateIntervalMS: number = 12_000,
+        cachingEnabled = false,
+        setCache: ((name: string, data: any) => void) | undefined = undefined,
+        getCache: (<T>(name: string) => T | undefined) | undefined = undefined,
     ) {
         this.applicationId = applicationId;
 
@@ -571,6 +656,10 @@ export class RPCHandle {
         this.updateHandler = updateHandler;
 
         this.updateIntervalMS = updateIntervalMS;
+
+        this.cachingEnabled = cachingEnabled;
+        this.setCache = setCache;
+        this.getCache = getCache;
     }
 
     /**
@@ -645,7 +734,13 @@ export class RPCHandle {
      * @returns {Promise<boolean>} Did connect successfully.
      */
     async connect(websocket: boolean): Promise<boolean> {
-        this.communication = new RPCCommunication(websocket, this.handleData);
+        this.communication = new RPCCommunication(
+            websocket,
+            this.handleData,
+            this.cachingEnabled,
+            this.setCache,
+            this.getCache,
+        );
 
         let connected: boolean = await this.tryToConnect();
 
@@ -664,7 +759,7 @@ export class RPCHandle {
     }
 
     /**
-     * @param {number} updateIntervalMS Update interval in milliseconds.
+     * @param {number} updateIntervalMS Update interval in milliseconds. (default 12_000)
      * @description Updates the 'updateIntervalMS' and resets the interval loop.
      */
     reload(updateIntervalMS: number = 12_000) {

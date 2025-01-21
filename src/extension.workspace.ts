@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+
 import { Config } from './extension.config';
 
 // Helper function for finding the corresponding icon for language.

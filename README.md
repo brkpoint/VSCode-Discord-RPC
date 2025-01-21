@@ -1,4 +1,4 @@
-### 2.0.1 VSCode-Discord-RPC
+# 2.1.1 VSCode-Discord-RPC
 
 This is an extension for vscode to display custom discord rpc.
 
@@ -6,6 +6,7 @@ This is an extension for vscode to display custom discord rpc.
 
 ## Features
 
+-   Caching discords IPC pipe path for faster loading
 -   Working on, Shows in the RPC what are you currently working on
 -   Language icon display, displays the language icon in the RPC
 -   Time elapsed, self explanatory
@@ -16,7 +17,8 @@ This is an extension for vscode to display custom discord rpc.
 
 -   Discord installed
 -   [Activity enabled in discord](#activity-setting-in-discord)
--   [discord-rpc](https://www.npmjs.com/package/discord-rpc#discordjs-rpc-extension) package
+-   [WebSocket](https://www.npmjs.com/package/ws)
+-   [glob](https://www.npmjs.com/package/glob)
 
 ### Activity setting in discord
 
@@ -91,4 +93,4 @@ None at the moment.
 
 ## Release Notes
 
-The whole extension has been rewritten from scratch. Has the same features as before and works better.
+Added caching and clearing the cache (if somebody would like to).
