@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.1.6] - 2025-01-21
+## [2.0.1] - 2025-01-21
 
 -   rewritten the whole extension
 -   cleaner code
