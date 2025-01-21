@@ -6,18 +6,13 @@ const path = require('path');
 
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const Dotenv = require('dotenv-webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { webpack, DefinePlugin } = require('webpack');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
 module.exports = (env) => {
-    const isProduction = env.NODE_ENV === 'production';
-    const dotenvFilename = isProduction
-        ? '.env.production'
-        : '.env.development';
-
     const extensionConfig = {
         target: 'node',
         entry: './src/extension.main.ts',
@@ -58,11 +53,9 @@ module.exports = (env) => {
             level: 'log',
         },
         plugins: [
+            new CleanWebpackPlugin(),
             new CompressionPlugin({
                 algorithm: 'gzip',
-            }),
-            new Dotenv({
-                path: dotenvFilename,
             }),
             new DefinePlugin({
                 'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
