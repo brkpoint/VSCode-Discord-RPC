@@ -13,13 +13,14 @@ const { webpack, DefinePlugin } = require('webpack');
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
 module.exports = (env) => {
-    const extensionConfig = {
+    return {
         target: 'node',
         entry: './src/extension.main.ts',
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'extension.js',
+            filename: '[name].js',
             libraryTarget: 'commonjs2',
+            clean: true,
         },
         externals: {
             vscode: 'commonjs vscode',
@@ -54,9 +55,6 @@ module.exports = (env) => {
         },
         plugins: [
             new CleanWebpackPlugin(),
-            new CompressionPlugin({
-                algorithm: 'gzip',
-            }),
             new DefinePlugin({
                 'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
             }),
@@ -71,6 +69,4 @@ module.exports = (env) => {
             usedExports: true,
         },
     };
-
-    return extensionConfig;
 };
