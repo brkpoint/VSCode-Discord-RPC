@@ -211,7 +211,7 @@ function initRpcStatusItem(): vscode.StatusBarItem {
     );
 
     statusBarItem.text = '$(sync~spin) RPC Connecting...';
-    statusBarItem.command = `${Config.get().extension.name}.barItem`;
+    statusBarItem.command = `${Config.get().extension.name}.statusItem`;
 
     statusBarItem.show();
 

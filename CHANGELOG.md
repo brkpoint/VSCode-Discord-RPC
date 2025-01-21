@@ -1,5 +1,11 @@
 # Change Log
 
+## [2.1.2] - 2025-01-21
+
+### Fixed
+
+-   'statusItem' not working correctly
+
 ## [2.1.1] - 2025-01-21
 
 ### Added
