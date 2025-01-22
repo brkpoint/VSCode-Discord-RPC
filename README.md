@@ -1,4 +1,4 @@
-# 2.1.2 VSCode-Discord-RPC
+# 2.1.3 VSCode-Discord-RPC
 
 This is an extension for vscode to display custom discord rpc.
 
@@ -93,4 +93,4 @@ None at the moment.
 
 ## Release Notes
 
-Added caching and clearing the cache (if somebody would like to).
+Optimalizations and general bug fixes.

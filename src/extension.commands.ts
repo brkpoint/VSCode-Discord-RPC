@@ -7,27 +7,26 @@ import { RPCHandle } from './rpc';
 /**
  * @param {ExtensionElements} elements
  * @param {RPCHandle} handle
- * @param {Function} startRpc
+ * @param {Function} connectRpc
  * @description Starts rpc, if it is connected, it wont connect.
  */
 export async function handleStartRpcCommand(
     elements: ExtensionElements,
     handle: RPCHandle,
-    startRpc: Function,
+    connectRpc: Function,
 ) {
     if (handle.isConnected()) {
         return;
     }
 
-    elements.get('barItem').text = '$(sync~spin) RPC Connecting...';
+    elements.get('statusItem').text = '$(sync~spin) RPC Connecting...';
 
-    await startRpc();
+    await connectRpc();
 }
 
 /**
  * @param {ExtensionElements} elements
  * @param {RPCHandle} handle
- * @param {Function} startRpc
  * @description Stops rpc connection, if it isnt connected it wont do anything.
  */
 export async function handleStopRpcCommand(
@@ -44,14 +43,15 @@ export async function handleStopRpcCommand(
 /**
  * @param {ExtensionElements} elements
  * @param {RPCHandle} handle
- * @param {Function} startRpc
  * @description Reloads rpc if it is connected.
  */
 export async function handleReloadRpcCommand(
     elements: ExtensionElements,
     handle: RPCHandle,
 ) {
-    elements.get('barItem').text = '$(sync~spin) Reloading...';
+    elements.get('statusItem').text = '$(sync~spin) Reloading...';
+
+    Config.load();
 
     await new Promise((f) => setTimeout(f, 1500));
 
@@ -77,16 +77,16 @@ export async function handleClearAllCacheCommand(
 /**
  * @param {ExtensionElements} elements
  * @param {RPCHandle} handle
- * @param {Function} startRpc
+ * @param {Function} connectRpc
  * @description If there is a connection between rpc and extension it will reload the rpc, if there isnt it will start rpc.
  */
 export async function handleStatusItemCommand(
     elements: ExtensionElements,
     handle: RPCHandle,
-    startRpc: Function,
+    connectRpc: Function,
 ) {
     if (!handle.isConnected()) {
-        await handleStartRpcCommand(elements, handle, startRpc);
+        await handleStartRpcCommand(elements, handle, connectRpc);
         return;
     }
 

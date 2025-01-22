@@ -57,7 +57,7 @@ class ConfigClass {
     // Logger settings
     logger = {
         debug: process.env.NODE_ENV !== 'production',
-        disabledMessages: 1, // print except
+        disabledMessages: -1, // print except
     };
 
     // String to parse

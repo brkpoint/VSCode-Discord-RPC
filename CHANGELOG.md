@@ -1,5 +1,15 @@
 # Change Log
 
+## [2.1.3] - 2025-01-22
+
+-   general size optimalization
+
+### Fixed
+
+-   'barItem' not extising and throwing errors
+-   documentation errors
+-   extension settings not reloading corretly
+
 ## [2.1.2] - 2025-01-21
 
 ### Fixed

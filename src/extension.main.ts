@@ -119,18 +119,7 @@ function connectionFailed() {
     vscode.window.showErrorMessage('RPC could not connect.');
 }
 
-async function initRpc() {
-    handle = new RPCHandle(
-        Config.get().rpc.applicationId,
-        handleRpcConnect,
-        handleRpcDisconnect,
-        handleRpcUpdates,
-        Config.get().extension.settings.updateTimeInterval * 1000,
-        true,
-        setCache,
-        getCache,
-    );
-
+async function connectRpc() {
     let connected: boolean = await handle.connect(false);
 
     if (!connected) {
@@ -160,7 +149,7 @@ function initCommands() {
     elements.add(
         startRpc,
         vscode.commands.registerCommand(startRpc, () => {
-            handleStartRpcCommand(elements, handle, initRpc);
+            handleStartRpcCommand(elements, handle, connectRpc);
         }),
     );
 
@@ -192,7 +181,7 @@ function initCommands() {
     elements.add(
         barItem,
         vscode.commands.registerCommand(barItem, () => {
-            handleStatusItemCommand(elements, handle, initRpc);
+            handleStatusItemCommand(elements, handle, connectRpc);
         }),
     );
 }
@@ -219,7 +208,8 @@ function initRpcStatusItem(): vscode.StatusBarItem {
 }
 
 function initElements() {
-    elements.add('statusItem', initRpcStatusItem());
+    const statusItem = initRpcStatusItem();
+    elements.add('statusItem', statusItem);
 }
 
 // Initialize all items
@@ -254,7 +244,17 @@ export async function activate(
     initVSCElements();
 
     Logger.log('Initializing RPC...');
-    await initRpc();
+    handle = new RPCHandle(
+        Config.get().rpc.applicationId,
+        handleRpcConnect,
+        handleRpcDisconnect,
+        handleRpcUpdates,
+        Config.get().extension.settings.updateTimeInterval * 1000,
+        true,
+        setCache,
+        getCache,
+    );
+    await connectRpc();
 }
 
 export function deactivate(): void {

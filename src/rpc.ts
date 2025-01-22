@@ -1,13 +1,10 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as net from 'net';
+import { existsSync } from 'fs';
+import { createConnection } from 'net';
 import { globSync } from 'glob';
 import { randomUUID } from 'crypto';
 
 import { Logger } from './extension.logger';
 import { LooseObject, addToObject } from './utils';
-
-const WebSocket = require('ws');
 
 // RPCCommunication Class //
 // Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
@@ -189,7 +186,7 @@ class RPCCommunication {
     private deepFindIpcPath(): string | undefined {
         const cachedPath = this.getCachedIpcPath();
 
-        if (cachedPath && fs.existsSync(cachedPath)) {
+        if (cachedPath && existsSync(cachedPath)) {
             return cachedPath;
         }
 
@@ -213,7 +210,7 @@ class RPCCommunication {
         const versions = ['discord-ipc-0', 'discord-ipc-1'];
 
         for (const version of versions) {
-            if (!fs.existsSync(ipcPath + version)) {
+            if (!existsSync(ipcPath + version)) {
                 continue;
             }
 
@@ -236,7 +233,7 @@ class RPCCommunication {
         }
 
         const userData = await new Promise<any>((resolve, reject) => {
-            this.socket = net.createConnection(ipcPath, () => {
+            this.socket = createConnection(ipcPath, () => {
                 const payload = {
                     v: 1,
                     client_id: applicationId,
@@ -377,8 +374,13 @@ export class RPCData {
      * @returns {LooseObject} Parsed object.
      */
     private parseActivity(activity: LooseObject): LooseObject {
-        addToObject(activity, ['details'], this.title);
-        addToObject(activity, ['state'], this.description);
+        if (this.title && this.title.length >= 2) {
+            addToObject(activity, ['details'], this.title);
+        }
+
+        if (this.description && this.description.length >= 2) {
+            addToObject(activity, ['state'], this.description);
+        }
 
         addToObject(activity, ['timestamps', 'start'], this.timestampStart);
         addToObject(activity, ['timestamps', 'end'], this.timestampEnd);

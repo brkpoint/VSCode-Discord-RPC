@@ -52,9 +52,8 @@ export class Logger {
     }
 
     /**
-     * @param {boolean} parse Should it parse and log the message.
      * @param {LogType} logType Type of log to print.
-     * @param {any} msg Message to log.
+     * @param {any} message Message to log.
      * @description Checks if the message is an object and if it is, it disables the parsing. Then proceedes to call the 'sendMessage' function.
      */
     private static sendParsedMessage(logType: LogType, message: any) {

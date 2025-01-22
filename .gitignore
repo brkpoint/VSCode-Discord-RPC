@@ -135,3 +135,6 @@ md/
 
 # Own files
 .DS_Store
+
+# Extension
+vscode-discord-rpc*
