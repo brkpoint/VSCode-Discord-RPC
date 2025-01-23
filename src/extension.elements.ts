@@ -1,7 +1,13 @@
 import { Logger } from './extension.logger';
 
-// Subscription Class //
-// Basically a version of vscode's subscription in subscriptions list.
+/*
+--------------------------
+|   SUBSCRIPTION CLASS   |
+--------------------------
+
+Basically a version of vscode's subscription in subscriptions list.
+
+*/
 
 export class Subscription {
     /**
@@ -11,8 +17,14 @@ export class Subscription {
     dispose(): any {}
 }
 
-// Elements Class //
-// VSCode's elements handler and updater for keeping this under controll.
+/*
+----------------------
+|   ELEMENTS CLASS   |
+----------------------
+
+VSCode's elements handler and updater for keeping this under controll.
+
+*/
 
 export class ExtensionElements {
     private subscriptions: Subscription[]; // All of the subscriptions.

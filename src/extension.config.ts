@@ -11,19 +11,26 @@ import {
     getCurrentCol,
 } from './extension.workspace';
 
-// Config class //
-// Config handler and vscode's settings handler.
-// Parser for strings:
-// | ----------------------------------------------- |
-// | String to format | Description                  |
-// | ---------------- | ---------------------------- |
-// | `$(fileName)`    | file's name                  |
-// | `$(fileType)`    | file's type                  |
-// | `$(workspace)`   | workspace's name             |
-// | `$(problems)`    | problems in file             |
-// | `$(line)`        | current cursor line position |
-// | `$(col)`         | cursor column position       |
-// | ----------------------------------------------- |
+/*
+--------------------
+|   Config class   |
+--------------------
+
+Config handler and vscode's settings handler.
+
+Parser for config:
+
+| ----------------------------------------------- |
+| String to format | Description                  |
+| ---------------- | ---------------------------- |
+| `$(fileName)`    | file's name                  |
+| `$(fileType)`    | file's type                  |
+| `$(workspace)`   | workspace's name             |
+| `$(problems)`    | problems in file             |
+| `$(line)`        | current cursor line position |
+| `$(col)`         | cursor column position       |
+| ----------------------------------------------- |
+*/
 
 function getInfo(): LooseObject {
     let ret: LooseObject = {

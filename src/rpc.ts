@@ -6,8 +6,14 @@ import { randomUUID } from 'crypto';
 import { Logger } from './extension.logger';
 import { LooseObject, addToObject } from './utils';
 
-// RPCCommunication Class //
-// Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
+/*
+--------------------------------
+|    RPCCOMMUNICATION CLASS    |
+--------------------------------
+
+Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
+
+*/
 
 class RPCCommunication {
     private isWebsocket: boolean;
@@ -318,8 +324,15 @@ class RPCCommunication {
     }
 }
 
-// RPCButton Class //
-// Button data for rpc.
+/*
+
+-------------------------
+|    RPCBUTTON CLASS    |
+-------------------------
+
+Button data for rpc.
+
+*/
 
 export class RPCButton {
     private button: { label: string; url: string };
@@ -339,8 +352,15 @@ export class RPCButton {
     }
 }
 
-// RPCData Class //
-// Data for rpc in discord, handles parsing and standard data building functions.
+/*
+
+-----------------------
+|    RPCDATA CLASS    |
+-----------------------
+
+Data for rpc in discord, handles parsing and standard data building functions.
+
+*/
 
 export class RPCData {
     private name: string;
@@ -610,8 +630,15 @@ export class RPCData {
     }
 }
 
-// RPCHandle Class //
-// Handles connection with discord, handles updates and data.
+/*
+
+-------------------------
+|    RPCHANDLE CLASS    |
+-------------------------
+
+Handles connection with discord, handles updates and data.
+
+*/
 
 export class RPCHandle {
     private readonly applicationId: string;

@@ -7,9 +7,14 @@ enum LogType {
     warn = 2,
     error = 3,
 }
+/*
+--------------------
+|   LOGGER CLASS   |
+--------------------
 
-// Logger Class //
-// Custom logger that doesnt log specific types of logs.
+Custom logger that doesnt log specific types of logs.
+
+*/
 
 export class Logger {
     private static logs: string[] = [];
