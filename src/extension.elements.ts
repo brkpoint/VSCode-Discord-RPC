@@ -18,21 +18,21 @@ export class Subscription {
 }
 
 /*
-----------------------
-|   ELEMENTS CLASS   |
-----------------------
+-----------------------------
+|   ELEMENTSHANDLER CLASS   |
+-----------------------------
 
 VSCode's elements handler and updater for keeping this under controll.
 
 */
 
-export class ExtensionElements {
+export class ElementsHandler {
     private subscriptions: Subscription[]; // All of the subscriptions.
     private elements: Map<string, any> = new Map<string, any>(); // Map of registered events.
 
     /**
      * @param {Subscription[]} subscriptions VSCode's default subscriptions param.
-     * @returns {ExtensionElements} instance of ExtensionElements class.
+     * @returns {ElementsHandler} instance of ElementsHandler class.
      */
     constructor(subscriptions: Subscription[]) {
         this.subscriptions = subscriptions;

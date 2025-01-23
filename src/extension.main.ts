@@ -5,20 +5,14 @@ import { Logger } from './extension.logger';
 import { Config } from './extension.config';
 import { getIconId } from './extension.workspace';
 import { Cacher } from './extension.caching';
-import { ExtensionElements } from './extension.elements';
-import {
-    handleStatusItemCommand,
-    handleStartRpcCommand,
-    handleStopRpcCommand,
-    handleClearAllCacheCommand,
-    handleReloadRpcCommand,
-    handleIssueReportCommand,
-} from './extension.commands';
+import { ElementsHandler } from './extension.elements';
+import { CommandsHandler } from './extension.commands';
 
 let startTimestamp: number = Date.now(); // Start of the vscode session.
 
 let cacher: Cacher; // Used to cache items.
-let elements: ExtensionElements; // Elements that are working with vscode.
+let elements: ElementsHandler; // Elements that are working with vscode.
+let commandsHandler: CommandsHandler;
 
 let handle: RPCHandle;
 let rpcData: RPCData = new RPCData('Visual Studio Code');
@@ -211,55 +205,7 @@ Initialized elements:
  * @description Initializes all extension commands.
  */
 function initCommands() {
-    const extensionName = Config.get().extension.name;
-
-    const startRpc = `${extensionName}.startRPC`;
-    elements.add(
-        startRpc,
-        vscode.commands.registerCommand(startRpc, () => {
-            handleStartRpcCommand(elements, handle, connectRpc);
-        }),
-    );
-
-    const stopRpc = `${extensionName}.stopRPC`;
-    elements.add(
-        stopRpc,
-        vscode.commands.registerCommand(stopRpc, () => {
-            handleStopRpcCommand(elements, handle);
-        }),
-    );
-
-    const reloadRpc = `${extensionName}.reloadRPC`;
-    elements.add(
-        reloadRpc,
-        vscode.commands.registerCommand(reloadRpc, () => {
-            handleReloadRpcCommand(elements, handle);
-        }),
-    );
-
-    const clearCache = `${extensionName}.clearAllCache`;
-    elements.add(
-        clearCache,
-        vscode.commands.registerCommand(clearCache, () => {
-            handleClearAllCacheCommand(elements, handle, cacher);
-        }),
-    );
-
-    const reportIssue = `${extensionName}.reportIssue`;
-    elements.add(
-        reportIssue,
-        vscode.commands.registerCommand(reportIssue, () => {
-            handleIssueReportCommand(elements, handle);
-        }),
-    );
-
-    const statusItem = `${extensionName}.statusItem`;
-    elements.add(
-        statusItem,
-        vscode.commands.registerCommand(statusItem, () => {
-            handleStatusItemCommand(elements, handle, connectRpc);
-        }),
-    );
+    commandsHandler = new CommandsHandler(elements, handle, cacher, connectRpc);
 }
 
 /**
@@ -302,14 +248,14 @@ function initItems() {
  * @description Initalize all elements and log.
  */
 function initVSCElements() {
-    Logger.info('Initializing commands.');
-    initCommands();
+    Logger.info('Initializing items.');
+    initItems();
 
     Logger.info('Initializing events.');
     initEvents();
 
-    Logger.info('Initializing items.');
-    initItems();
+    Logger.info('Initializing commands.');
+    initCommands();
 
     Logger.log('Elements initalized.');
 }
@@ -337,11 +283,7 @@ export async function activate(
 
     Logger.info('Setting up extension...');
     cacher = new Cacher(context);
-    elements = new ExtensionElements(context.subscriptions);
-
-    initVSCElements();
-
-    Logger.log('Initializing RPC...');
+    elements = new ElementsHandler(context.subscriptions);
     handle = new RPCHandle(
         Config.get().rpc.applicationId,
         handleRpcConnect,
@@ -352,6 +294,10 @@ export async function activate(
         setCache,
         getCache,
     );
+
+    initVSCElements();
+
+    Logger.log('Initializing RPC...');
     await connectRpc();
 }
 

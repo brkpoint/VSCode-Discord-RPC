@@ -2,118 +2,234 @@ import { commands, window } from 'vscode';
 
 import { Cacher } from './extension.caching';
 import { Config } from './extension.config';
-import { ExtensionElements } from './extension.elements';
+import { ElementsHandler } from './extension.elements';
 import { Logger } from './extension.logger';
 import { RPCHandle } from './rpc';
 
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @param {Function} connectRpc
- * @description Starts rpc, if it is connected, it wont connect.
- */
-export async function handleStartRpcCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-    connectRpc: Function,
-) {
-    if (handle.isConnected()) {
-        return;
+/*
+-----------------------
+|    COMMAND CLASS    |
+-----------------------
+
+Command constructor.
+
+*/
+
+export class Command {
+    private name: string;
+    private id: string;
+    private callback: (...args: any[]) => Promise<any>;
+
+    /**
+     * @param {string} name Name of the command.
+     * @param {Function} callback Function is called when the command is issued.
+     */
+    constructor(name: string, callback: (...args: any[]) => Promise<any>) {
+        this.name = name;
+        this.id = `${Config.get().extension.name}.${name}`;
+        this.callback = callback;
     }
 
-    elements.get('statusItem').text = '$(sync~spin) RPC Connecting...';
-
-    await connectRpc();
-}
-
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @description Stops rpc connection, if it isnt connected it wont do anything.
- */
-export async function handleStopRpcCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-) {
-    if (!handle.isConnected()) {
-        return;
+    /**
+     * @returns {string} Name of the command.
+     */
+    getName(): string {
+        return this.name;
     }
 
-    handle.disconnect();
-}
+    /**
+     * @returns {string} ID of the command.
+     */
+    getId(): string {
+        return this.id;
+    }
 
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @description Reloads rpc if it is connected.
- */
-export async function handleReloadRpcCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-) {
-    elements.get('statusItem').text = '$(sync~spin) Reloading...';
-
-    Config.load();
-
-    await new Promise((f) => setTimeout(f, 1500));
-
-    handle.reload(Config.get().extension.settings.updateTimeInterval * 1000);
-
-    Logger.log('Reloaded RPC.');
-}
-
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @param {Cacher} cacher
- * @description Clears extensions cache.
- */
-export async function handleClearAllCacheCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-    cacher: Cacher,
-) {
-    cacher.clearAllCache();
-}
-
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @description Opens the issue reporter with logs.
- */
-export async function handleIssueReportCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-) {
-    const reporter = await commands.executeCommand(
-        'workbench.action.openIssueReporter',
-        {
-            extensionId: Config.get().extension.id,
-            issueBody: 'Describe the issue here...',
-            data: Logger.getLogsAsString(),
-        },
-    );
-
-    if (reporter) {
-        window.showInformationMessage('Thank you for reporting the issue.');
+    /**
+     * @returns {Function} Function to call when command is issued.
+     */
+    getCallback(): (...args: any[]) => any {
+        return this.callback;
     }
 }
 
-/**
- * @param {ExtensionElements} elements
- * @param {RPCHandle} handle
- * @param {Function} connectRpc
- * @description If there is a connection between rpc and extension it will reload the rpc, if there isnt it will start rpc.
- */
-export async function handleStatusItemCommand(
-    elements: ExtensionElements,
-    handle: RPCHandle,
-    connectRpc: Function,
-) {
-    if (!handle.isConnected()) {
-        await handleStartRpcCommand(elements, handle, connectRpc);
-        return;
+/*
+-----------------------
+|    COMMANDS ENUM    |
+-----------------------
+
+All avaiable commands.
+
+*/
+
+export enum Commands {
+    START_RPC = 'startRPC',
+    STOP_RPC = 'stopRPC',
+    RELOAD_RPC = 'reloadRPC',
+    CLEAR_ALL_CACHE = 'clearAllCache',
+    REPORT_ISSUE = 'reportIssue',
+    STATUS_ITEM = 'statusItem',
+}
+
+/*
+-------------------------------
+|    COMMANDSHANDLER CLASS    |
+-------------------------------
+
+Handles all commands.
+
+*/
+
+export class CommandsHandler {
+    private elements: ElementsHandler;
+    private handle: RPCHandle;
+    private cacher: Cacher;
+
+    private connectRpc: Function;
+
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description Starts rpc, if it is connected, it wont connect.
+     */
+    private async handleStartRpcCommand(...args: any[]) {
+        if (this.handle.isConnected()) {
+            return;
+        }
+
+        this.elements.get('statusItem').text = '$(sync~spin) RPC Connecting...';
+
+        await this.connectRpc();
     }
 
-    await handleReloadRpcCommand(elements, handle);
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description Stops rpc connection, if it isnt connected it wont do anything.
+     */
+    private async handleStopRpcCommand(...args: any[]) {
+        if (!this.handle.isConnected()) {
+            return;
+        }
+
+        this.handle.disconnect();
+    }
+
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description Reloads rpc if it is connected.
+     */
+    private async handleReloadRpcCommand(...args: any[]) {
+        this.elements.get('statusItem').text = '$(sync~spin) Reloading...';
+
+        Config.load();
+
+        await new Promise((f) => setTimeout(f, 1500));
+
+        this.handle.reload(
+            Config.get().extension.settings.updateTimeInterval * 1000,
+        );
+
+        Logger.log('Reloaded RPC.');
+    }
+
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description Clears extensions cache.
+     */
+    private async handleClearAllCacheCommand(...args: any[]) {
+        this.cacher.clearAllCache();
+    }
+
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description Opens the issue reporter with logs.
+     */
+    private async handleIssueReportCommand(...args: any[]) {
+        const reporter = await commands.executeCommand(
+            'workbench.action.openIssueReporter',
+            {
+                extensionId: Config.get().extension.id,
+                issueBody: 'Describe the issue here...',
+                data: Logger.getLogsAsString(),
+            },
+        );
+
+        if (reporter) {
+            window.showInformationMessage('Thank you for reporting the issue.');
+        }
+    }
+
+    /**
+     * @param {any[]} args Arguments from command caller.
+     * @description If there is a connection between rpc and extension it will reload the rpc, if there isnt it will start rpc.
+     */
+    private async handleStatusItemCommand(...args: any[]) {
+        if (!this.handle.isConnected()) {
+            await this.handleStartRpcCommand();
+            return;
+        }
+
+        await this.handleReloadRpcCommand();
+    }
+
+    /**
+     *
+     * @param {command} command Command to initialize.
+     * @description Command initialization helper, registers the command and adds it to the 'elements' list.
+     */
+    private initCommand(command: Command) {
+        const vsCommand = commands.registerCommand(
+            command.getId(),
+            command.getCallback(),
+        );
+
+        this.elements.add(command.getName(), vsCommand);
+    }
+
+    constructor(
+        elements: ElementsHandler,
+        handle: RPCHandle,
+        cacher: Cacher,
+        connectRpc: Function,
+    ) {
+        this.elements = elements;
+        this.handle = handle;
+        this.cacher = cacher;
+        this.connectRpc = connectRpc;
+
+        /* START RPC */
+        this.initCommand(
+            new Command(Commands.START_RPC, (...args: any[]) =>
+                this.handleStartRpcCommand(...args),
+            ),
+        );
+        /* STOP RPC */
+        this.initCommand(
+            new Command(Commands.STOP_RPC, (...args: any[]) =>
+                this.handleStopRpcCommand(...args),
+            ),
+        );
+        /* RELOAD RPC */
+        this.initCommand(
+            new Command(Commands.RELOAD_RPC, (...args: any[]) =>
+                this.handleReloadRpcCommand(...args),
+            ),
+        );
+        /* CLEAR ALL CACHE */
+        this.initCommand(
+            new Command(Commands.CLEAR_ALL_CACHE, (...args: any[]) =>
+                this.handleClearAllCacheCommand(...args),
+            ),
+        );
+        /* REPORT ISSUE */
+        this.initCommand(
+            new Command(Commands.REPORT_ISSUE, (...args: any[]) =>
+                this.handleIssueReportCommand(...args),
+            ),
+        );
+        /* STATUS ITEM */
+        this.initCommand(
+            new Command(Commands.STATUS_ITEM, (...args: any[]) =>
+                this.handleStatusItemCommand(...args),
+            ),
+        );
+    }
 }
