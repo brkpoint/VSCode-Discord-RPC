@@ -51,6 +51,7 @@ class ConfigClass {
     // Extension settings
     extension: LooseObject = {
         name: 'vscode-discord-rpc',
+        id: `brkpointdotorg.vscode-discord-rpc`,
         settings: {},
     };
 

@@ -22,21 +22,32 @@
         "commands": [
             {
                 "command": "vscode-discord-rpc.startRPC",
-                "title": "VSC-Discord-RPC: start RPC"
+                "title": "VSC-Discord-RPC: Start RPC."
             },
             {
                 "command": "vscode-discord-rpc.stopRPC",
-                "title": "VSC-Discord-RPC: stop RPC"
+                "title": "VSC-Discord-RPC: Stop RPC."
             },
             {
                 "command": "vscode-discord-rpc.reloadRPC",
-                "title": "VSC-Discord-RPC: reload RPC"
+                "title": "VSC-Discord-RPC: Reload RPC."
             },
             {
                 "command": "vscode-discord-rpc.clearAllCache",
-                "title": "VSC-Discord-RPC: clear all cache"
+                "title": "VSC-Discord-RPC: Clear all cache."
+            },
+            {
+                "command": "vscode-discord-rpc.reportIssue",
+                "title": "VSC-Discord-RPC: Report an issue..."
             }
         ],
+        "menus": {
+            "issue/reporter": [
+                {
+                    "command": "vscode-discord-rpc.reportIssue"
+                }
+            ]
+        },
         "configuration": [
             {
                 "title": "VSCode Discord RPC",

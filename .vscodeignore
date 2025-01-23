@@ -3,6 +3,10 @@
 out/test/**
 src/**
 test/**
+icons/**
+md/**
+out/**
+node_modules/
 .gitignore
 tsconfig.json
 webpack.config.js

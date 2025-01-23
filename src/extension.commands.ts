@@ -1,3 +1,5 @@
+import { commands, window } from 'vscode';
+
 import { Cacher } from './extension.caching';
 import { Config } from './extension.config';
 import { ExtensionElements } from './extension.elements';
@@ -72,6 +74,29 @@ export async function handleClearAllCacheCommand(
     cacher: Cacher,
 ) {
     cacher.clearAllCache();
+}
+
+/**
+ * @param {ExtensionElements} elements
+ * @param {RPCHandle} handle
+ * @description Opens the issue reporter with logs.
+ */
+export async function handleIssueReportCommand(
+    elements: ExtensionElements,
+    handle: RPCHandle,
+) {
+    const reporter = await commands.executeCommand(
+        'workbench.action.openIssueReporter',
+        {
+            extensionId: Config.get().extension.id,
+            issueBody: 'Describe the issue here...',
+            data: Logger.getLogsAsString(),
+        },
+    );
+
+    if (reporter) {
+        window.showInformationMessage('Thank you for reporting the issue.');
+    }
 }
 
 /**

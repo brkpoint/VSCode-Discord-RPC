@@ -12,6 +12,7 @@ import {
     handleStopRpcCommand,
     handleClearAllCacheCommand,
     handleReloadRpcCommand,
+    handleIssueReportCommand,
 } from './extension.commands';
 
 let cacher: Cacher;
@@ -177,10 +178,18 @@ function initCommands() {
         }),
     );
 
-    const barItem = `${extensionName}.statusItem`;
+    const reportIssue = `${extensionName}.reportIssue`;
     elements.add(
-        barItem,
-        vscode.commands.registerCommand(barItem, () => {
+        reportIssue,
+        vscode.commands.registerCommand(reportIssue, () => {
+            handleIssueReportCommand(elements, handle);
+        }),
+    );
+
+    const statusItem = `${extensionName}.statusItem`;
+    elements.add(
+        statusItem,
+        vscode.commands.registerCommand(statusItem, () => {
             handleStatusItemCommand(elements, handle, connectRpc);
         }),
     );

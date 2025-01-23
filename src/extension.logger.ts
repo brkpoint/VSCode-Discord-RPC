@@ -12,34 +12,39 @@ enum LogType {
 // Custom logger that doesnt log specific types of logs.
 
 export class Logger {
-    /**
-     * @param {boolean} parse Should it parse and log the message.
-     * @param {LogType} logType Type of log to print.
-     * @param {any} msg Message to log.
-     * @description Normal log to the console.
-     */
-    private static send(parse: boolean, logType: LogType, msg: any) {
-        if (!parse) {
-            console.log(msg);
-            return;
-        }
+    private static logs: string[] = [];
 
+    /**
+     * @param {LogType} logType Type of log to parse into the message.
+     * @param {any} msg Message to parse.
+     * @description Parses the message.
+     */
+    private static parse(logType: LogType, msg: any) {
         const name = Config.get().extension.name;
         const logTypeString = LogType[logType].toUpperCase();
 
         const maxLength = 5;
         let spaces = ' '.repeat(maxLength - logTypeString.length);
 
-        console.log(`${name} : ${logTypeString}${spaces}  -  ${msg}`);
+        const msgParsed = `${name} : ${logTypeString}${spaces}  -  ${msg}`;
+
+        return msgParsed;
     }
 
     /**
-     * @param {boolean} parse Should it parse and log the message.
+     * @param {boolean} parse Should it parse the message.
      * @param {LogType} logType Type of log to print.
      * @param {any} msg Message to log.
      * @description Checks if logging is enabled and if 'logType' is equal to the one that we dont allow to log. Then proceedes to call the function 'send()'.
      */
     private static sendMessage(parse: boolean, logType: LogType, msg: any) {
+        let message = msg;
+        if (parse) {
+            message = this.parse(logType, msg);
+        }
+
+        this.logs.push(message);
+
         if (!Config.get().logger.debug) {
             return;
         }
@@ -48,7 +53,7 @@ export class Logger {
             return;
         }
 
-        this.send(parse, logType, msg);
+        console.log(message);
     }
 
     /**
@@ -63,6 +68,22 @@ export class Logger {
         }
 
         this.sendMessage(true, logType, message);
+    }
+
+    /**
+     * @description All logs from current session (not saved).
+     * @returns {string[]} All logs from the start of the extension.
+     */
+    static getLogs(): string[] {
+        return this.logs;
+    }
+
+    /**
+     * @description All logs from current session (not saved).
+     * @returns {string} All logs from the start of the extension but as a string (separeted by '\n').
+     */
+    static getLogsAsString(): string {
+        return this.logs.join('\n');
     }
 
     /**
