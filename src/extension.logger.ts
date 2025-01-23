@@ -54,10 +54,6 @@ export class Logger {
             return;
         }
 
-        if (logType === Config.get().logger.disabledMessages) {
-            return;
-        }
-
         console.log(message);
     }
 
@@ -68,6 +64,10 @@ export class Logger {
      */
     private static sendParsedMessage(logType: LogType, message: any) {
         if (typeof message === 'object') {
+            if (!Config.get().logger.debug) {
+                return;
+            }
+
             this.sendMessage(false, logType, message);
             return;
         }
