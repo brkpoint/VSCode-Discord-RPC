@@ -26,14 +26,15 @@ class RPCCommunication {
      * @param {boolean} isWebsocket Is the connection throught a websocket.
      * @param {Function} reciverHandler Data reciver handler.
      * @param {boolean} cachingEnabled If caching is enabled, mostly used for caching paths. (default undefined)
-     * @param {Function | undefined} cacheFunction Function used to cache. (default undefined)
+     * @param {Function | undefined} setCache Function used to set cache items. (default undefined)
+     * @param {Function | undefined} getCache Function used to get cached items. (default undefined)
      */
     constructor(
         isWebsocket: boolean,
         reciverHandler: (type: number, op: number, payload: any) => any,
         cachingEnabled: boolean,
         setCache: ((key: string, data: any) => any) | undefined,
-        getCahce: (<T>(key: string) => T | undefined) | undefined,
+        getCache: (<T>(key: string) => T | undefined) | undefined,
     ) {
         this.isWebsocket = isWebsocket;
 
@@ -41,7 +42,7 @@ class RPCCommunication {
 
         this.cachingEnabled = cachingEnabled;
         this.setCache = setCache;
-        this.getCache = getCahce;
+        this.getCache = getCache;
     }
 
     /**

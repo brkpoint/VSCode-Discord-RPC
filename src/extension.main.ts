@@ -15,17 +15,27 @@ import {
     handleIssueReportCommand,
 } from './extension.commands';
 
-let cacher: Cacher;
-let elements: ExtensionElements;
-let handle: RPCHandle;
+let startTimestamp: number = Date.now(); // Start of the vscode session.
 
-let startTimestamp: number = Date.now(); // Start of the vscode session
+let cacher: Cacher; // Used to cache items.
+let elements: ExtensionElements; // Elements that are working with vscode.
+
+let handle: RPCHandle;
 let rpcData: RPCData = new RPCData('Visual Studio Code');
 
-// RPC Update //
-// Update RPC with the current vscode's data.
+/*
+-------------------
+|    RPC UPDATE   |
+-------------------
 
-// Sets all the variables needed for rpc.
+Update RPC with the current vscode's data.
+
+*/
+
+/**
+ * @param {any} settings User's settings for RPC.
+ * @description Updates 'rpcData' with the current data avaiable (on events it will update).
+ */
 function presence(settings: any) {
     const details = Config.parse(settings.details);
     if (details) {
@@ -49,7 +59,9 @@ function presence(settings: any) {
     }
 }
 
-// Update the data and get the current presence.
+/**
+ * @description Updates 'rpcData' with full presence.
+ */
 function rpcDataUpdate() {
     rpcData = new RPCData('Visual Studio Code').setLargeImage('vscode');
 
@@ -67,15 +79,26 @@ function rpcDataUpdate() {
     presence(settings);
 }
 
-// RPC Events //
-// Handlers for RPC connection that controll what happens with 'barItem', logs and vscode popup errors.
+/*
+-------------------
+|    RPC EVENTS   |
+-------------------
 
+Handlers for RPC connection that controll what happens with 'barItem', logs and vscode popup errors.
+
+*/
+
+/**
+ * @description When called it will update RPC with avaiable data.
+ */
 async function handleRpcUpdates() {
     rpcDataUpdate();
-
     handle.update(rpcData);
 }
 
+/**
+ * @description When the client connects to discord, function will update 'statusItem' and log user connection.
+ */
 function handleRpcConnect() {
     const username = handle.getUsername();
     if (!username) {
@@ -94,25 +117,51 @@ function handleRpcConnect() {
     ).text = `$(pass-filled) ${displayName} connected.`;
 }
 
+/**
+ * @description When client disconnects, function will update 'statusItem' and log user disconnection.
+ */
 function handleRpcDisconnect() {
     Logger.info(`Connection disconnected.`);
 
     elements.get('statusItem').text = '$(error) RPC disconnected';
 }
 
-// Caching helper functions //
+/*
+--------------------------------
+|    CACHE HELPER FUNCTIONS    |
+--------------------------------
+*/
 
+/**
+ * @param {string} key Key for data in cache.
+ * @param {any} data
+ * @description Sets the key with data in cache.
+ */
 function setCache(key: string, data: any) {
     cacher.setCache(key, data);
 }
 
+/**
+ * @param {string} key
+ * @description Find data with the key in cache.
+ * @returns {T | undefined} Cache found.
+ */
 function getCache<T>(key: string): T | undefined {
     return cacher.getCache<T>(key);
 }
 
-// RPC Init //
-// Initialization of 'RPCHandler' and if the connection fails it handles it.
+/*
+----------------
+|   RPC INIT   |
+----------------
 
+Initialization of 'RPCHandler' and if the connection fails it handles it.
+
+*/
+
+/**
+ * @description When RPC connection fails, this function will be called.
+ */
 function connectionFailed() {
     Logger.warn('Failed to connect to discord.');
 
@@ -120,6 +169,9 @@ function connectionFailed() {
     vscode.window.showErrorMessage('RPC could not connect.');
 }
 
+/**
+ * @description Tries to connect to discord.
+ */
 async function connectRpc() {
     let connected: boolean = await handle.connect(false);
 
@@ -131,18 +183,30 @@ async function connectRpc() {
     handleRpcUpdates();
 }
 
-// Init vscode commands, events, elements //
-// Initializes all needed commands, events and elements.
-// Initialized commands:
-//  - startRPC   (starts RPC from vscode command line)
-//  - stopRPC    (stops RPC if it is connected)
-//  - reloadRPC  (restarts the rpc interval with new (or old) milliseconds)
-//  - statusItem (handles the behaviour of the 'statusItem' element)
-// Initialized events:
-//  - windowChangeEvent (if the user switches to a diffrent file the event will be called)
-// Initialized elements:
-//  - statusItem (item in the bar at the bottom of the editor)
+/*
+---------------------------
+|   INIT VSCODE ELEMENTS  |
+---------------------------
 
+Initializes all needed commands, events and elements.
+
+Initialized commands:
+ - startRPC   (starts RPC from vscode command line)
+ - stopRPC    (stops RPC if it is connected)
+ - reloadRPC  (restarts the rpc interval with new (or old) milliseconds)
+ - statusItem (handles the behaviour of the 'statusItem' element)
+
+Initialized events:
+ - windowChangeEvent (if the user switches to a diffrent file the event will be called)
+
+Initialized elements:
+ - statusItem (item in the bar at the bottom of the editor)
+
+*/
+
+/**
+ * @description Initializes all extension commands.
+ */
 function initCommands() {
     const extensionName = Config.get().extension.name;
 
@@ -195,6 +259,9 @@ function initCommands() {
     );
 }
 
+/**
+ * @description Initializes all extension events.
+ */
 function initEvents() {
     elements.add(
         'windowChangeEvent',
@@ -202,6 +269,10 @@ function initEvents() {
     );
 }
 
+/**
+ * @description Creates 'statusItem' with default text.
+ * @returns {vscode.StatusBarItem} 'statusItem'.
+ */
 function initRpcStatusItem(): vscode.StatusBarItem {
     let statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Left,
@@ -216,12 +287,17 @@ function initRpcStatusItem(): vscode.StatusBarItem {
     return statusBarItem;
 }
 
-function initElements() {
+/**
+ * @description Initialize all items.
+ */
+function initItems() {
     const statusItem = initRpcStatusItem();
     elements.add('statusItem', statusItem);
 }
 
-// Initialize all items
+/**
+ * @description Initalize all elements and log.
+ */
 function initVSCElements() {
     Logger.info('Initializing commands.');
     initCommands();
@@ -229,15 +305,25 @@ function initVSCElements() {
     Logger.info('Initializing events.');
     initEvents();
 
-    Logger.info('Initializing elements.');
-    initElements();
+    Logger.info('Initializing items.');
+    initItems();
 
     Logger.log('Elements initalized.');
 }
 
-// VSCode entry and exit points //
-// Default vscode's extension entry point and exit point.
+/*
+------------------------------
+|   VSCODE ENTRY AND EXIT    |
+------------------------------
 
+Default vscode's extension entry point and exit point.
+
+*/
+
+/**
+ * @param {vscode.ExtensionContext} context
+ * @description VSCode's extension entry point. Initializes elements, configs and starts RPC connection.
+ */
 export async function activate(
     context: vscode.ExtensionContext,
 ): Promise<void> {
@@ -266,6 +352,9 @@ export async function activate(
     await connectRpc();
 }
 
+/**
+ * @description VSCode's extension exit point. Stops RPC connection.
+ */
 export function deactivate(): void {
     if (handle.isConnected()) {
         handle.disconnect();

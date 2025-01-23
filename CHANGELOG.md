@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.1.4] - 2025-01-23
+
+-   better size optimalization
+
+### Added:
+
+-   issue reporter with logs (can be turned off)
+
+## Fixed:
+
+-   some code documentation
+
 ## [2.1.3] - 2025-01-22
 
 -   general size optimalization
