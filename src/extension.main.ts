@@ -130,6 +130,9 @@ function handleRpcDisconnect() {
 --------------------------------
 |    CACHE HELPER FUNCTIONS    |
 --------------------------------
+
+Helper functions for caching.
+
 */
 
 /**
