@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { ExtensionContext } from 'vscode';
 
 import { Logger } from './extension.logger';
 import { Config } from './extension.config';
@@ -9,12 +9,12 @@ import { Config } from './extension.config';
 export class Cacher {
     private cachedKeys: string[] = [];
     private cachedKeysName: string = 'keys';
-    private extensionContext: vscode.ExtensionContext;
+    private extensionContext: ExtensionContext;
 
     /**
      * @param globalCache VSCode's globalState caching.
      */
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: ExtensionContext) {
         this.extensionContext = context;
 
         const keys = this.getCache<string[]>(this.cachedKeysName);

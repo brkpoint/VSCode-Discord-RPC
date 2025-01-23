@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { workspace } from 'vscode';
 
 import { LooseObject } from './utils';
 import {
@@ -123,11 +123,11 @@ export class Config {
 
     // Loades extension settings into config
     static load() {
-        if (!vscode.workspace) {
+        if (!workspace) {
             return;
         }
 
-        this.config.extension.settings = vscode.workspace.getConfiguration(
+        this.config.extension.settings = workspace.getConfiguration(
             this.config.extension.name,
         );
     }
