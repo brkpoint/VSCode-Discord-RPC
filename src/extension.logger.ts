@@ -20,16 +20,21 @@ export class Logger {
     private static logs: string[] = [];
 
     /**
+     * @param {boolean} parse Should be parsed.
      * @param {LogType} logType Type of log to parse into the message.
      * @param {any} msg Message to parse.
      * @description Parses the message.
      */
-    private static parse(logType: LogType, msg: any) {
+    private static parse(parse: boolean, logType: LogType, msg: any) {
+        if (!parse) {
+            return msg;
+        }
+
         const name = Config.get().extension.name;
         const logTypeString = LogType[logType].toUpperCase();
 
         const maxLength = 5;
-        let spaces = ' '.repeat(maxLength - logTypeString.length);
+        const spaces = ' '.repeat(maxLength - logTypeString.length);
 
         const msgParsed = `${name} : ${logTypeString}${spaces}  -  ${msg}`;
 
@@ -43,10 +48,7 @@ export class Logger {
      * @description Checks if logging is enabled and if 'logType' is equal to the one that we dont allow to log. Then proceedes to call the function 'send()'.
      */
     private static sendMessage(parse: boolean, logType: LogType, msg: any) {
-        let message = msg;
-        if (parse) {
-            message = this.parse(logType, msg);
-        }
+        const message = this.parse(parse, logType, msg);
 
         this.logs.push(message);
 
@@ -63,11 +65,7 @@ export class Logger {
      * @description Checks if the message is an object and if it is, it disables the parsing. Then proceedes to call the 'sendMessage' function.
      */
     private static sendParsedMessage(logType: LogType, message: any) {
-        if (typeof message === 'object') {
-            if (!Config.get().logger.debug) {
-                return;
-            }
-
+        if (typeof message === 'object' && Config.get().logger.debug) {
             this.sendMessage(false, logType, message);
             return;
         }

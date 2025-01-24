@@ -1,14 +1,17 @@
 # Change Log
 
-## [2.1.4] - 2025-01-23
+## [2.2.0] - 2025-01-24
 
 -   better size optimalization
 
 ### Added:
 
 -   issue reporter with logs (can be turned off)
+-   commands handler
+-   events handler
+-   logger only sends logs not objects recived from discord
 
-## Fixed:
+### Fixed:
 
 -   some code documentation
 

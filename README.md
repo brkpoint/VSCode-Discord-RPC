@@ -1,6 +1,8 @@
-# 2.1.3 VSCode-Discord-RPC
+# 2.2.0 VSCode-Discord-RPC
 
 This is an extension for vscode to display custom discord rpc.
+
+IF ANY ISSUES/BUGS ACCURE, PLEASE REPORT THEM.
 
 ### [Versioning](https://semver.org/#semantic-versioning-200)
 
@@ -12,6 +14,7 @@ This is an extension for vscode to display custom discord rpc.
 -   Time elapsed, self explanatory
 -   Problems, Problems in file currently worked on
 -   Automatic restart when discord disconnects
+-   Issues reporter
 
 ## Requirements
 
@@ -93,4 +96,4 @@ None at the moment.
 
 ## Release Notes
 
-Optimalizations and general bug fixes.
+More size reduction, added commands and events handlers.

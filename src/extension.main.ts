@@ -7,14 +7,16 @@ import { getIconId } from './extension.workspace';
 import { Cacher } from './extension.caching';
 import { ElementsHandler } from './extension.elements';
 import { CommandsHandler } from './extension.commands';
+import { EventsHandler } from './extension.events';
 
 let startTimestamp: number = Date.now(); // Start of the vscode session.
 
 let cacher: Cacher; // Used to cache items.
 let elements: ElementsHandler; // Elements that are working with vscode.
+let eventsHandler: EventsHandler;
 let commandsHandler: CommandsHandler;
 
-let handle: RPCHandle;
+let rpcHandle: RPCHandle;
 let rpcData: RPCData = new RPCData('Visual Studio Code');
 
 /*
@@ -74,9 +76,9 @@ function rpcDataUpdate() {
 }
 
 /*
--------------------
-|    RPC EVENTS   |
--------------------
+--------------------
+|    RPC EVENTS    |
+--------------------
 
 Handlers for RPC connection that controll what happens with 'barItem', logs and vscode popup errors.
 
@@ -87,19 +89,19 @@ Handlers for RPC connection that controll what happens with 'barItem', logs and 
  */
 async function handleRpcUpdates() {
     rpcDataUpdate();
-    handle.update(rpcData);
+    rpcHandle.update(rpcData);
 }
 
 /**
  * @description When the client connects to discord, function will update 'statusItem' and log user connection.
  */
 function handleRpcConnect() {
-    const username = handle.getUsername();
+    const username = rpcHandle.getUsername();
     if (!username) {
         return;
     }
 
-    const displayName = handle.getDisplayName();
+    const displayName = rpcHandle.getDisplayName();
     if (!displayName) {
         return;
     }
@@ -170,7 +172,7 @@ function connectionFailed() {
  * @description Tries to connect to discord.
  */
 async function connectRpc() {
-    let connected: boolean = await handle.connect(false);
+    let connected: boolean = await rpcHandle.connect(false);
 
     if (!connected) {
         connectionFailed();
@@ -205,17 +207,19 @@ Initialized elements:
  * @description Initializes all extension commands.
  */
 function initCommands() {
-    commandsHandler = new CommandsHandler(elements, handle, cacher, connectRpc);
+    commandsHandler = new CommandsHandler(
+        elements,
+        rpcHandle,
+        cacher,
+        connectRpc,
+    );
 }
 
 /**
  * @description Initializes all extension events.
  */
 function initEvents() {
-    elements.add(
-        'windowChangeEvent',
-        vscode.window.onDidChangeActiveTextEditor(() => handleRpcUpdates()),
-    );
+    eventsHandler = new EventsHandler(elements, handleRpcUpdates);
 }
 
 /**
@@ -284,7 +288,7 @@ export async function activate(
     Logger.info('Setting up extension...');
     cacher = new Cacher(context);
     elements = new ElementsHandler(context.subscriptions);
-    handle = new RPCHandle(
+    rpcHandle = new RPCHandle(
         Config.get().rpc.applicationId,
         handleRpcConnect,
         handleRpcDisconnect,
@@ -305,8 +309,8 @@ export async function activate(
  * @description VSCode's extension exit point. Stops RPC connection.
  */
 export function deactivate(): void {
-    if (handle.isConnected()) {
-        handle.disconnect();
+    if (rpcHandle.isConnected()) {
+        rpcHandle.disconnect();
         Logger.log('RPC disconnected.');
     }
 

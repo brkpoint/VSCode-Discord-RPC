@@ -71,9 +71,9 @@ export enum Commands {
 }
 
 /*
--------------------------------
-|    COMMANDSHANDLER CLASS    |
--------------------------------
+--------------------------------
+|    COMMANDS HANDLER CLASS    |
+--------------------------------
 
 Handles all commands.
 
@@ -81,7 +81,7 @@ Handles all commands.
 
 export class CommandsHandler {
     private elements: ElementsHandler;
-    private handle: RPCHandle;
+    private rpcHandle: RPCHandle;
     private cacher: Cacher;
 
     private connectRpc: Function;
@@ -91,7 +91,7 @@ export class CommandsHandler {
      * @description Starts rpc, if it is connected, it wont connect.
      */
     private async handleStartRpcCommand(...args: any[]) {
-        if (this.handle.isConnected()) {
+        if (this.rpcHandle.isConnected()) {
             return;
         }
 
@@ -105,11 +105,11 @@ export class CommandsHandler {
      * @description Stops rpc connection, if it isnt connected it wont do anything.
      */
     private async handleStopRpcCommand(...args: any[]) {
-        if (!this.handle.isConnected()) {
+        if (!this.rpcHandle.isConnected()) {
             return;
         }
 
-        this.handle.disconnect();
+        this.rpcHandle.disconnect();
     }
 
     /**
@@ -123,7 +123,7 @@ export class CommandsHandler {
 
         await new Promise((f) => setTimeout(f, 1500));
 
-        this.handle.reload(
+        this.rpcHandle.reload(
             Config.get().extension.settings.updateTimeInterval * 1000,
         );
 
@@ -162,7 +162,7 @@ export class CommandsHandler {
      * @description If there is a connection between rpc and extension it will reload the rpc, if there isnt it will start rpc.
      */
     private async handleStatusItemCommand(...args: any[]) {
-        if (!this.handle.isConnected()) {
+        if (!this.rpcHandle.isConnected()) {
             await this.handleStartRpcCommand();
             return;
         }
@@ -184,14 +184,20 @@ export class CommandsHandler {
         this.elements.add(command.getName(), vsCommand);
     }
 
+    /**
+     * @param {ElementsHandler} elements
+     * @param {RPCHandle} rpcHandle
+     * @param {Cacher} cacher
+     * @param {Function} connectRpc
+     */
     constructor(
         elements: ElementsHandler,
-        handle: RPCHandle,
+        rpcHandle: RPCHandle,
         cacher: Cacher,
         connectRpc: Function,
     ) {
         this.elements = elements;
-        this.handle = handle;
+        this.rpcHandle = rpcHandle;
         this.cacher = cacher;
         this.connectRpc = connectRpc;
 

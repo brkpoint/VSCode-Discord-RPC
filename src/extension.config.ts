@@ -13,7 +13,7 @@ import {
 
 /*
 --------------------
-|   Config class   |
+|   CONFIG CLASS   |
 --------------------
 
 Config handler and vscode's settings handler.
@@ -30,6 +30,7 @@ Parser for config:
 | `$(line)`        | current cursor line position |
 | `$(col)`         | cursor column position       |
 | ----------------------------------------------- |
+
 */
 
 function getInfo(): LooseObject {

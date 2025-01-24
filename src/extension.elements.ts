@@ -18,9 +18,9 @@ export class Subscription {
 }
 
 /*
------------------------------
-|   ELEMENTSHANDLER CLASS   |
------------------------------
+------------------------------
+|   ELEMENTS HANDLER CLASS   |
+------------------------------
 
 VSCode's elements handler and updater for keeping this under controll.
 

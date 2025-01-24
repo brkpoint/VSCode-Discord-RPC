@@ -7,9 +7,9 @@ import { Logger } from './extension.logger';
 import { LooseObject, addToObject } from './utils';
 
 /*
---------------------------------
-|    RPCCOMMUNICATION CLASS    |
---------------------------------
+---------------------------------
+|    RPC COMMUNICATION CLASS    |
+---------------------------------
 
 Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
 
@@ -326,9 +326,9 @@ class RPCCommunication {
 
 /*
 
--------------------------
-|    RPCBUTTON CLASS    |
--------------------------
+--------------------------
+|    RPC BUTTON CLASS    |
+--------------------------
 
 Button data for rpc.
 
@@ -354,9 +354,9 @@ export class RPCButton {
 
 /*
 
------------------------
-|    RPCDATA CLASS    |
------------------------
+------------------------
+|    RPC DATA CLASS    |
+------------------------
 
 Data for rpc in discord, handles parsing and standard data building functions.
 
@@ -632,9 +632,9 @@ export class RPCData {
 
 /*
 
--------------------------
-|    RPCHANDLE CLASS    |
--------------------------
+--------------------------
+|    RPC HANDLE CLASS    |
+--------------------------
 
 Handles connection with discord, handles updates and data.
 
