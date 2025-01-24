@@ -739,10 +739,10 @@ export class RPCHandle {
      * @description Handles the data recived from discord.
      */
     private handleData(type: number, op: number, payload: any) {
-        Logger.info(`Recived opcode: ${op} and data: `, payload);
+        Logger.info(`Recived opcode: ${op} and data.`, payload);
         switch (type) {
             case 1:
-                Logger.error('Error occured: ', payload);
+                Logger.error(`Error occured, (opcode: ${op}).`, payload);
                 return;
             case 2:
                 this.disconnectHandler(this);
@@ -754,7 +754,7 @@ export class RPCHandle {
                 this.updatePresence();
                 break;
             default:
-                Logger.warn(`Unhandled event (opcode: ${op}): `, payload);
+                Logger.warn(`Unhandled event, (opcode: ${op}).`, payload);
         }
     }
 

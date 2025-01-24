@@ -54,18 +54,13 @@ function getInfo(): LooseObject {
     return ret;
 }
 
-// Not accesible Config in Config class.
 class ConfigClass {
     // Extension settings
     extension: LooseObject = {
         name: 'vscode-discord-rpc',
         id: `brkpointdotorg.vscode-discord-rpc`,
-        settings: {},
-    };
-
-    // Logger settings
-    logger = {
         debug: process.env.NODE_ENV !== 'production',
+        settings: {},
     };
 
     // String to parse

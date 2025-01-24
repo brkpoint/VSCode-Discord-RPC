@@ -52,7 +52,7 @@ export class Logger {
 
         this.logs.push(message);
 
-        if (!Config.get().logger.debug) {
+        if (!Config.get().extension.debug) {
             return;
         }
 
@@ -65,7 +65,11 @@ export class Logger {
      * @description Checks if the message is an object and if it is, it disables the parsing. Then proceedes to call the 'sendMessage' function.
      */
     private static sendParsedMessage(logType: LogType, message: any) {
-        if (typeof message === 'object' && Config.get().logger.debug) {
+        if (typeof message === 'object') {
+            if (Config.get().extension.debug) {
+                return;
+            }
+
             this.sendMessage(false, logType, message);
             return;
         }
