@@ -1,6 +1,6 @@
 <div class="main">
     <div>
-        <h1>2.2.1 VSCode-Discord-RPC</h1>
+        <h1>2.2.2 VSCode-Discord-RPC</h1>
     </div>
     <img alt="VSCRPC-icon" src="./icon.png" width=128>
     <br>

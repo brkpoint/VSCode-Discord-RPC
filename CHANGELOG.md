@@ -4,6 +4,12 @@
 
 ## Updated:
 
+-   display name
+
+## [2.2.1] - 2025-01-25
+
+## Updated:
+
 -   the icon
 
 ## Added:
