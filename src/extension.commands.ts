@@ -62,9 +62,9 @@ All avaiable commands.
 */
 
 export enum Commands {
-    START_RPC = 'startRPC',
-    STOP_RPC = 'stopRPC',
-    RELOAD_RPC = 'reloadRPC',
+    START_CONNECTION = 'startRP',
+    STOP_CONNECTION = 'stopRP',
+    RELOAD_CONNECTION = 'reloadRP',
     CLEAR_ALL_CACHE = 'clearAllCache',
     REPORT_ISSUE = 'reportIssue',
     STATUS_ITEM = 'statusItem',
@@ -90,7 +90,7 @@ export class CommandsHandler {
      * @param {any[]} args Arguments from command caller.
      * @description Starts rpc, if it is connected, it wont connect.
      */
-    private async handleStartRpcCommand(...args: any[]) {
+    private async handleStartConnectionCommand(...args: any[]) {
         if (this.rpcHandle.isConnected()) {
             return;
         }
@@ -104,7 +104,7 @@ export class CommandsHandler {
      * @param {any[]} args Arguments from command caller.
      * @description Stops rpc connection, if it isnt connected it wont do anything.
      */
-    private async handleStopRpcCommand(...args: any[]) {
+    private async handleStopConnectionCommand(...args: any[]) {
         if (!this.rpcHandle.isConnected()) {
             return;
         }
@@ -116,7 +116,7 @@ export class CommandsHandler {
      * @param {any[]} args Arguments from command caller.
      * @description Reloads rpc if it is connected.
      */
-    private async handleReloadRpcCommand(...args: any[]) {
+    private async handleReloadConnectionCommand(...args: any[]) {
         this.elements.get('statusItem').text = '$(sync~spin) Reloading...';
 
         Config.load();
@@ -163,11 +163,11 @@ export class CommandsHandler {
      */
     private async handleStatusItemCommand(...args: any[]) {
         if (!this.rpcHandle.isConnected()) {
-            await this.handleStartRpcCommand();
+            await this.handleStartConnectionCommand();
             return;
         }
 
-        await this.handleReloadRpcCommand();
+        await this.handleReloadConnectionCommand();
     }
 
     /**
@@ -203,20 +203,20 @@ export class CommandsHandler {
 
         /* START RPC */
         this.initCommand(
-            new Command(Commands.START_RPC, (...args: any[]) =>
-                this.handleStartRpcCommand(...args),
+            new Command(Commands.START_CONNECTION, (...args: any[]) =>
+                this.handleStartConnectionCommand(...args),
             ),
         );
         /* STOP RPC */
         this.initCommand(
-            new Command(Commands.STOP_RPC, (...args: any[]) =>
-                this.handleStopRpcCommand(...args),
+            new Command(Commands.STOP_CONNECTION, (...args: any[]) =>
+                this.handleStopConnectionCommand(...args),
             ),
         );
         /* RELOAD RPC */
         this.initCommand(
-            new Command(Commands.RELOAD_RPC, (...args: any[]) =>
-                this.handleReloadRpcCommand(...args),
+            new Command(Commands.RELOAD_CONNECTION, (...args: any[]) =>
+                this.handleReloadConnectionCommand(...args),
             ),
         );
         /* CLEAR ALL CACHE */

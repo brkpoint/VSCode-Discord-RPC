@@ -1,10 +1,11 @@
 # Change Log
 
-## [2.2.1] - 2025-01-25
+## [2.2.2] & [2.2.3] - 2025-01-25
 
 ## Updated:
 
 -   display name
+-   `README.md` and `package.json` changes
 
 ## [2.2.1] - 2025-01-25
 

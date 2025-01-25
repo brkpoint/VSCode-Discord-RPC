@@ -2,12 +2,19 @@
     "name": "vscode-discord-rpc",
     "icon": "icon.png",
     "publisher": "brkpointdotorg",
-    "displayName": "VSCode Discord RPC",
-    "description": "Simple, easy to use discord RPC with customization.",
+    "displayName": "Simple RP",
+    "keywords": [
+        "rpc",
+        "rp",
+        "rich presence",
+        "discord",
+        "vscode discord"
+    ],
+    "description": "Simple, easy to use, custom rich presence for discord.",
     "repository": {
         "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
     },
-    "version": "2.2.2",
+    "version": "2.2.3",
     "engines": {
         "vscode": "^1.92.0"
     },
@@ -21,24 +28,24 @@
     "contributes": {
         "commands": [
             {
-                "command": "vscode-discord-rpc.startRPC",
-                "title": "VSC-Discord-RPC: Start RPC."
+                "command": "vscode-discord-rpc.startRP",
+                "title": "Simple RP: Start RP."
             },
             {
-                "command": "vscode-discord-rpc.stopRPC",
-                "title": "VSC-Discord-RPC: Stop RPC."
+                "command": "vscode-discord-rpc.stopRP",
+                "title": "Simple RP: Stop RP."
             },
             {
                 "command": "vscode-discord-rpc.reloadRPC",
-                "title": "VSC-Discord-RPC: Reload RPC."
+                "title": "Simple RP: Reload RP."
             },
             {
                 "command": "vscode-discord-rpc.clearAllCache",
-                "title": "VSC-Discord-RPC: Clear all cache."
+                "title": "Simple RP: Clear all cache."
             },
             {
                 "command": "vscode-discord-rpc.reportIssue",
-                "title": "VSC-Discord-RPC: Report an issue..."
+                "title": "Simple RP: Report an issue..."
             }
         ],
         "menus": {

@@ -87,7 +87,7 @@ Handlers for RPC connection that controll what happens with 'barItem', logs and 
 /**
  * @description When called it will update RPC with avaiable data.
  */
-async function handleRpcUpdates() {
+async function handleRpUpdates() {
     rpcDataUpdate();
     rpcHandle.update(rpcData);
 }
@@ -95,7 +95,7 @@ async function handleRpcUpdates() {
 /**
  * @description When the client connects to discord, function will update 'statusItem' and log user connection.
  */
-function handleRpcConnect() {
+function handleRpConnect() {
     const username = rpcHandle.getUsername();
     if (!username) {
         return;
@@ -116,7 +116,7 @@ function handleRpcConnect() {
 /**
  * @description When client disconnects, function will update 'statusItem' and log user disconnection.
  */
-function handleRpcDisconnect() {
+function handleRpDisconnect() {
     Logger.info(`Connection disconnected.`);
 
     elements.get('statusItem').text = '$(error) RPC disconnected';
@@ -179,7 +179,7 @@ async function connectRpc() {
         return;
     }
 
-    handleRpcUpdates();
+    handleRpUpdates();
 }
 
 /*
@@ -219,7 +219,7 @@ function initCommands() {
  * @description Initializes all extension events.
  */
 function initEvents() {
-    eventsHandler = new EventsHandler(elements, handleRpcUpdates);
+    eventsHandler = new EventsHandler(elements, handleRpUpdates);
 }
 
 /**
@@ -290,9 +290,9 @@ export async function activate(
     elements = new ElementsHandler(context.subscriptions);
     rpcHandle = new RPCHandle(
         Config.get().rpc.applicationId,
-        handleRpcConnect,
-        handleRpcDisconnect,
-        handleRpcUpdates,
+        handleRpConnect,
+        handleRpDisconnect,
+        handleRpUpdates,
         Config.get().extension.settings.updateTimeInterval * 1000,
         true,
         setCache,
