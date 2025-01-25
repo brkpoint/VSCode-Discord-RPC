@@ -1,5 +1,15 @@
 # Change Log
 
+## [2.2.1] - 2025-01-25
+
+## Updated:
+
+-   the icon
+
+## Added:
+
+-   stats, icon and more links to `README.md` file
+
 ## [2.2.0] - 2025-01-24
 
 -   better size optimalization
@@ -21,7 +31,7 @@
 
 ### Fixed
 
--   'barItem' not extising and throwing errors
+-   `barItem` not extising and throwing errors
 -   documentation errors
 -   extension settings not reloading corretly
 
@@ -29,7 +39,7 @@
 
 ### Fixed
 
--   'statusItem' not working correctly
+-   `statusItem` not working correctly
 
 ## [2.1.1] - 2025-01-21
 
@@ -54,7 +64,7 @@
 
 ### Fixed
 
--   'rpc timeout' or 'rpc disconnected' spam
+-   'RPC Timeout' or 'RPC Disconnected' spam
 -   commands not responding
 -   errors
 
@@ -62,7 +72,7 @@
 
 ### Added
 
--   `setActivity` function to 'rpc.mjs'
+-   `setActivity` function to `rpc.mjs`
 -   Error `RPC_CONNECTION_TIMEOUT` to discord's activity promise timeout
 
 ### Fixed
