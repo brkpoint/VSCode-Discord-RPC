@@ -2,8 +2,8 @@
     "name": "vscode-discord-rpc",
     "icon": "icon.png",
     "publisher": "brkpointdotorg",
-    "displayName": "Custom Discord RPC",
-    "description": "Custom vscode RPC for discord",
+    "displayName": "VSC-RPC",
+    "description": "Simple, easy to use discord RPC with customization.",
     "repository": {
         "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
     },

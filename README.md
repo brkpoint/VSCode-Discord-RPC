@@ -1,6 +1,33 @@
-# 2.2.0 VSCode-Discord-RPC
+<div class="main">
+    <div>
+        <h1>2.2.0 VSCode-Discord-RPC</h1>
+    </div>
+    <img alt="VSCRPC-icon" src="./icon.png" width=128>
+    <br>
+    <img alt="Visual Studio Marketplace Rating" src="https://img.shields.io/visual-studio-marketplace/stars/brkpointdotorg.vscode-discord-rpc">
+    <br><br>
+    <div class="main link">
+        <a href="https://marketplace.visualstudio.com/items?itemName=brkpointdotorg.vscode-discord-rpc" target="about:blank">
+            <img alt="Visual Studio Marketplace icon" src="https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/1b6d695a-be0d-4aaf-920f-675585b5bb9c.png?auto=format&ixlib=react-9.0.3" style="margin-right: 10px;" width=42>
+        </a>
+        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/brkpointdotorg.vscode-discord-rpc">
+        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/brkpointdotorg.vscode-discord-rpc">
+        <img alt="Visual Studio Marketplace Downloads" src="https://img.shields.io/visual-studio-marketplace/d/brkpointdotorg.vscode-discord-rpc">
+    </div>
+    <div class="main link">
+        <a href="https://github.com/brkpoint/VSCode-Discord-RPC" target="about:blank">
+            <img alt="Github icon" src="https://img.icons8.com/?size=96&id=fmFqQmR0UdsR&format=png" width=64>
+        </a>
+        <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/brkpoint/VSCode-Discord-RPC">
+        <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/brkpoint/VSCode-Discord-RPC">
+        <img alt="GitHub Created At" src="https://img.shields.io/github/created-at/brkpoint/VSCode-Discord-RPC">
+        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/brkpoint/VSCode-Discord-RPC">
+    </div>
+</div>
 
-This is an extension for vscode to display custom discord rpc.
+## About the extension
+
+Connects to discord and displays custom RPC.
 
 IF ANY ISSUES/BUGS ACCURE, PLEASE REPORT THEM.
 
@@ -25,9 +52,8 @@ IF ANY ISSUES/BUGS ACCURE, PLEASE REPORT THEM.
 
 ### Activity setting in discord
 
-#### Enabling the activity:
-
 First go to settings, then scroll down to category `ACTIVITY SETTINGS`. After that click on `Activity Privacy` and enable `Share detected activities with others`.
+If the setting is disabled the presence wont show up on your discord profile.
 
 ## Extension Settings
 
@@ -97,3 +123,28 @@ None at the moment.
 ## Release Notes
 
 More size reduction, added commands and events handlers.
+
+<style>
+    .main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .link {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .link img {
+        margin: 2px;
+    }
+
+    .link a {
+        text-decoration: none;
+    }
+
+    .link a:focus {
+        outline: none;
+    }
+</style>
