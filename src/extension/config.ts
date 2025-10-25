@@ -1,6 +1,6 @@
 import { workspace } from 'vscode';
 
-import { LooseObject } from './utils';
+import { LooseObject } from '@/utils/utils';
 import {
     getWorkspaceName,
     getFileName,
@@ -9,13 +9,12 @@ import {
     getProblems,
     getCurrentLine,
     getCurrentCol,
-} from './extension.workspace';
+} from '@/extension/workspace';
 
+/*--------------*/
+/* CONFIG CLASS */
+/*--------------*/
 /*
---------------------
-|   CONFIG CLASS   |
---------------------
-
 Config handler and vscode's settings handler.
 
 Parser for config:
@@ -59,7 +58,7 @@ class ConfigClass {
     extension: LooseObject = {
         name: 'vscode-discord-rpc',
         id: `brkpointdotorg.vscode-discord-rpc`,
-        debug: process.env.NODE_ENV !== 'production',
+        debug: process.env.NODE_ENV === 'development',
         settings: {},
     };
 
@@ -97,7 +96,11 @@ class ConfigClass {
         // Avaiable icons
         icons: {
             javascript: ['javascript'],
+            tsx: ['typescriptreact'],
             typescript: ['typescript'],
+            jsx: ['javascriptreact'],
+            vue: ['vue'],
+            scss: ['scss'],
             json: ['json'],
             ignore: ['ignore'],
             markdown: ['markdown'],
@@ -111,7 +114,7 @@ class ConfigClass {
             lua: ['lua'],
             python: ['python'],
             java: ['java'],
-            asm: ['asm-intel-x86-generic'],
+            asm: ['asm', 's'],
             bin: ['bin'],
         },
     };

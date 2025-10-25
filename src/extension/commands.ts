@@ -1,19 +1,15 @@
 import { commands, window } from 'vscode';
 
-import { Cacher } from './extension.caching';
-import { Config } from './extension.config';
-import { ElementsHandler } from './extension.elements';
-import { Logger } from './extension.logger';
-import { RPCHandle } from './rpc';
+import { Cacher } from '@/extension/caching';
+import { Config } from '@/extension/config';
+import { ElementsHandler } from '@/extension/elements';
+import { Logger } from '@/utils/logger';
+import { RPCHandle } from '@/rpc';
 
-/*
------------------------
-|    COMMAND CLASS    |
------------------------
-
-Command constructor.
-
-*/
+/*---------------*/
+/* COMMAND CLASS */
+/*---------------*/
+// Command constructor.
 
 export class Command {
     private name: string;
@@ -52,14 +48,10 @@ export class Command {
     }
 }
 
-/*
------------------------
-|    COMMANDS ENUM    |
------------------------
-
-All avaiable commands.
-
-*/
+/*---------------*/
+/* COMMANDS ENUM */
+/*---------------*/
+// All avaiable commands.
 
 export enum Commands {
     START_CONNECTION = 'startRP',
@@ -70,14 +62,10 @@ export enum Commands {
     STATUS_ITEM = 'statusItem',
 }
 
-/*
---------------------------------
-|    COMMANDS HANDLER CLASS    |
---------------------------------
-
-Handles all commands.
-
-*/
+/*------------------------*/
+/* COMMANDS HANDLER CLASS */
+/*------------------------*/
+// Handles all commands.
 
 export class CommandsHandler {
     private elements: ElementsHandler;
@@ -172,7 +160,7 @@ export class CommandsHandler {
 
     /**
      *
-     * @param {command} command Command to initialize.
+     * @param {Command} command Command to initialize.
      * @description Command initialization helper, registers the command and adds it to the 'elements' list.
      */
     private initCommand(command: Command) {
@@ -182,6 +170,17 @@ export class CommandsHandler {
         );
 
         this.elements.add(command.getName(), vsCommand);
+    }
+
+    /**
+     *
+     * @param {Command[]} command Commands to initialize.
+     * @description Command initialization helper, registers the commands and adds it to the 'elements' list.
+     */
+    private initCommands(commands: Command[]) {
+        for (const command of commands) {
+            this.initCommand(command);
+        }
     }
 
     /**
@@ -201,41 +200,31 @@ export class CommandsHandler {
         this.cacher = cacher;
         this.connectRpc = connectRpc;
 
-        /* START RPC */
-        this.initCommand(
+        this.initCommands([
+            /* START RPC */
             new Command(Commands.START_CONNECTION, (...args: any[]) =>
                 this.handleStartConnectionCommand(...args),
             ),
-        );
-        /* STOP RPC */
-        this.initCommand(
+            /* STOP RPC */
             new Command(Commands.STOP_CONNECTION, (...args: any[]) =>
                 this.handleStopConnectionCommand(...args),
             ),
-        );
-        /* RELOAD RPC */
-        this.initCommand(
+            /* RELOAD RPC */
             new Command(Commands.RELOAD_CONNECTION, (...args: any[]) =>
                 this.handleReloadConnectionCommand(...args),
             ),
-        );
-        /* CLEAR ALL CACHE */
-        this.initCommand(
+            /* CLEAR ALL CACHE */
             new Command(Commands.CLEAR_ALL_CACHE, (...args: any[]) =>
                 this.handleClearAllCacheCommand(...args),
             ),
-        );
-        /* REPORT ISSUE */
-        this.initCommand(
+            /* REPORT ISSUE */
             new Command(Commands.REPORT_ISSUE, (...args: any[]) =>
                 this.handleIssueReportCommand(...args),
             ),
-        );
-        /* STATUS ITEM */
-        this.initCommand(
+            /* STATUS ITEM */
             new Command(Commands.STATUS_ITEM, (...args: any[]) =>
                 this.handleStatusItemCommand(...args),
             ),
-        );
+        ]);
     }
 }

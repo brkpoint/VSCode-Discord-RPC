@@ -5,6 +5,7 @@
 const path = require('path');
 
 const TerserPlugin = require('terser-webpack-plugin');
+const { TsconfigPathsPlugin } = require('tsconfig-paths-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin =
     require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -14,70 +15,97 @@ const { DefinePlugin } = require('webpack');
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
-const plugins = [
-    new CleanWebpackPlugin(),
-    new DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    }),
-];
+//@ts-ignore
+module.exports = (env, argv) => {
+    // Development mode flag
+    const mode = argv.mode || 'production';
 
-if (process.env.NODE_ENV === 'development') {
-    //@ts-ignore
-    plugins.push(new BundleAnalyzerPlugin());
-}
+    const isDev = mode === 'development' || false;
 
-module.exports = {
-    target: 'node',
-    mode: 'none',
-    entry: './src/extension.main.ts',
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
-        libraryTarget: 'commonjs2',
-        clean: true,
-    },
-    externals: {
-        vscode: 'commonjs vscode',
-    },
-    resolve: {
-        extensions: ['.ts', '.js'],
-    },
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                exclude: /node_modules/,
-                use: [
-                    {
-                        loader: 'ts-loader',
-                    },
-                ],
-            },
-            {
-                test: /\.ts$/,
-                exclude: [path.resolve(__dirname, 'test')],
-            },
-            {
-                test: /\.js$/,
-                exclude: [path.resolve(__dirname, 'test')],
-            },
-        ],
-    },
-    devtool: 'nosources-source-map',
-    infrastructureLogging: {
-        level: 'log',
-    },
-    plugins: plugins,
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                vendors: false,
-            },
-            chunks: 'all',
+    const extensions = ['.ts', '.js'];
+
+    const srcPath = path.resolve(__dirname, 'src');
+    const entryPath = path.resolve(__dirname, 'src', 'main.ts');
+    const outputPath = path.resolve(__dirname, 'dist');
+    const testPath = path.resolve(__dirname, 'test');
+
+    const devtool = isDev ? 'eval-source-map' : 'none';
+
+    // Plugins
+    let plugins = [
+        new CleanWebpackPlugin(),
+        new DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(mode),
+        }),
+    ];
+
+    const resolvePlugins = [new TsconfigPathsPlugin()];
+
+    if (isDev) {
+        //@ts-ignore
+        plugins.push(new BundleAnalyzerPlugin());
+    }
+
+    console.log(`Building for ${mode}...`);
+    console.log(`Entry: ${entryPath}`);
+    console.log(`Output: ${outputPath}`);
+    console.log(`Source Maps: ${devtool}`);
+
+    // Webpack configuration
+    return {
+        mode: mode,
+        target: 'node',
+        entry: entryPath,
+        output: {
+            path: outputPath,
+            filename: '[name].js',
+            libraryTarget: 'commonjs2',
+            clean: true,
         },
-        minimize: true,
-        minimizer: [new TerserPlugin()],
-        concatenateModules: true,
-        usedExports: true,
-    },
+        externals: {
+            vscode: 'commonjs vscode',
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/,
+                    exclude: /node_modules/,
+                    use: [
+                        {
+                            loader: 'ts-loader',
+                        },
+                    ],
+                },
+                {
+                    test: /\.ts$/,
+                    exclude: [testPath],
+                },
+                {
+                    test: /\.js$/,
+                    exclude: [testPath],
+                },
+            ],
+        },
+        resolve: {
+            extensions: extensions,
+            plugins: resolvePlugins,
+        },
+        optimization: {
+            splitChunks: {
+                cacheGroups: {
+                    vendors: false,
+                },
+                chunks: 'all',
+            },
+            minimize: true,
+            minimizer: [new TerserPlugin()],
+            concatenateModules: true,
+            usedExports: true,
+        },
+        plugins: plugins,
+        devtool: devtool,
+        infrastructureLogging: {
+            level: 'log',
+        },
+    };
 };

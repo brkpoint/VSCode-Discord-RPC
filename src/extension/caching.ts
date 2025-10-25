@@ -1,16 +1,12 @@
 import { ExtensionContext } from 'vscode';
 
-import { Logger } from './extension.logger';
-import { Config } from './extension.config';
+import { Logger } from '@/utils/logger';
+import { Config } from '@/extension/config';
 
-/*
---------------------
-|   CACHER CLASS   |
---------------------
-
-Simple cache handler.
-
-*/
+/*--------------*/
+/* CACHER CLASS */
+/*--------------*/
+// Simple cache handler.
 
 export class Cacher {
     private cachedKeys: string[] = [];

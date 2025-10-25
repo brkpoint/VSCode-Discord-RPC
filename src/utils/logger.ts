@@ -1,4 +1,4 @@
-import { Config } from './extension.config';
+import { Config } from '@/extension/config';
 
 // Type of log.
 enum LogType {
@@ -7,14 +7,11 @@ enum LogType {
     warn = 2,
     error = 3,
 }
-/*
---------------------
-|   LOGGER CLASS   |
---------------------
 
-Custom logger that doesnt log specific types of logs.
-
-*/
+/*--------------*/
+/* LOGGER CLASS */
+/*--------------*/
+// Custom logger that doesnt log specific types of logs.
 
 export class Logger {
     private static logs: string[] = [];
@@ -56,7 +53,14 @@ export class Logger {
             return;
         }
 
-        console.log(message);
+        switch (logType) {
+            case LogType.error:
+                console.log(message);
+                break;
+
+            default:
+                console.log(message);
+        }
     }
 
     /**

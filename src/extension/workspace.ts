@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
-import { Config } from './extension.config';
+import { Config } from './config';
+import { Logger } from '../utils/logger';
 
 // Helper function for finding the corresponding icon for language.
 function getIconToLanguageId(id: string | undefined): string | undefined {
@@ -27,7 +28,7 @@ export function getIconId(): string | undefined {
     const fileExtension = getFileExtension();
     let iconId = getDetectedLanguageId();
 
-    if (iconId === 'plaintext') {
+    if (iconId === 'plaintext' || iconId === 'platformio-debug.asm') {
         iconId = fileExtension;
     }
 
@@ -95,7 +96,9 @@ export function getDetectedLanguageId(): string | undefined {
  * @description Gets all known problems in the current file and returns the list containing all of them, if workspace or a file isnt opened it will return undefined.
  * @returns {vscode.Diagnostic[] | undefined} Problems list.
  */
-export function getProblems(): vscode.Diagnostic[] | undefined {
+export function getProblems(
+    severity: vscode.DiagnosticSeverity = vscode.DiagnosticSeverity.Error,
+): vscode.Diagnostic[] | undefined {
     const editor = vscode.window.activeTextEditor;
 
     if (!editor) {
@@ -103,8 +106,11 @@ export function getProblems(): vscode.Diagnostic[] | undefined {
     }
 
     const diagnostics = vscode.languages.getDiagnostics(editor.document.uri);
+    const filteredDiagnostics = diagnostics.filter(
+        (e) => e.severity === severity,
+    );
 
-    return diagnostics;
+    return filteredDiagnostics;
 }
 
 /**

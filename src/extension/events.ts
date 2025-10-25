@@ -1,27 +1,19 @@
 import { Disposable, window } from 'vscode';
-import { ElementsHandler } from './extension.elements';
+import { ElementsHandler } from '@/extension/elements';
 
-/*
--------------------
-|   EVENTS ENUM   |
--------------------
-
-All avaiable events.
-
-*/
+/*-------------*/
+/* EVENTS ENUM */
+/*-------------*/
+// All avaiable events.
 
 export enum Events {
     WINDOW_CHANGED = 'windowChangeEvent',
 }
 
-/*
-----------------------------
-|   EVENTS HANDLER CLASS   |
-----------------------------
-
-Events handling class.
-
-*/
+/*----------------------*/
+/* EVENTS HANDLER CLASS */
+/*----------------------*/
+// Events handling class.
 
 export class EventsHandler {
     private elements: ElementsHandler;
@@ -36,14 +28,14 @@ export class EventsHandler {
 
     /**
      * @param {ElementsHandler} elements
-     * @param {Function} handleRpcUpdates
+     * @param {Function} callback
      */
-    constructor(elements: ElementsHandler, handleRpcUpdates: Function) {
+    constructor(elements: ElementsHandler, callback: Function) {
         this.elements = elements;
 
         this.initEvent(
             Events.WINDOW_CHANGED,
-            window.onDidChangeActiveTextEditor(() => handleRpcUpdates()),
+            window.onDidChangeActiveTextEditor(() => callback()),
         );
     }
 }

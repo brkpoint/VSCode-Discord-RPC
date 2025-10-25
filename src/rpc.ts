@@ -3,17 +3,13 @@ import { createConnection } from 'net';
 import { globSync } from 'glob';
 import { randomUUID } from 'crypto';
 
-import { Logger } from './extension.logger';
-import { LooseObject, addToObject } from './utils';
+import { Logger } from '@/utils/logger';
+import { LooseObject, addToObject } from '@/utils/utils';
 
-/*
----------------------------------
-|    RPC COMMUNICATION CLASS    |
----------------------------------
-
-Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
-
-*/
+/*------------------------*/
+/* RPC Communication clas */
+/*------------------------*/
+// Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
 
 class RPCCommunication {
     private isWebsocket: boolean;
@@ -324,15 +320,10 @@ class RPCCommunication {
     }
 }
 
-/*
-
---------------------------
-|    RPC BUTTON CLASS    |
---------------------------
-
-Button data for rpc.
-
-*/
+/*------------------*/
+/* RPC Button Class */
+/*------------------*/
+// Button data for rpc.
 
 export class RPCButton {
     private button: { label: string; url: string };
@@ -352,15 +343,10 @@ export class RPCButton {
     }
 }
 
-/*
-
-------------------------
-|    RPC DATA CLASS    |
-------------------------
-
-Data for rpc in discord, handles parsing and standard data building functions.
-
-*/
+/*----------------*/
+/* RPC DATA CLASS */
+/*----------------*/
+// Data for rpc in discord, handles parsing and standard data building functions.
 
 export class RPCData {
     private name: string;
@@ -630,15 +616,10 @@ export class RPCData {
     }
 }
 
-/*
-
---------------------------
-|    RPC HANDLE CLASS    |
---------------------------
-
-Handles connection with discord, handles updates and data.
-
-*/
+/*------------------*/
+/* RPC HANDLE CLASS */
+/*------------------*/
+// Handles connection with discord, handles updates and data.
 
 export class RPCHandle {
     private readonly applicationId: string;
