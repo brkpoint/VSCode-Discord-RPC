@@ -3,15 +3,12 @@ import { createConnection } from 'net';
 import { globSync } from 'glob';
 import { randomUUID } from 'crypto';
 
-import { Logger } from '@/utils/logger';
-import { LooseObject, addToObject } from '@/utils/utils';
-
-/*------------------------*/
-/* RPC Communication clas */
-/*------------------------*/
-// Handles parsing messages, connecting, disconnecting and general communication between the code and discord.
-
-class RPCCommunication {
+/**
+ * REMOTE PROCESS COMMUNICATION
+ *
+ * Wraper around IPC and WebSocket connections to discord.
+ */
+class RPC {
     private isWebsocket: boolean;
     private connected: boolean = false;
 
@@ -20,31 +17,16 @@ class RPCCommunication {
 
     private reciverHandler: (type: number, op: number, payload: any) => any;
 
-    private cachingEnabled: boolean;
-    private setCache: ((key: string, data: any) => void) | undefined;
-    private getCache: (<T>(key: string) => T | undefined) | undefined;
-
     /**
      * @param {boolean} isWebsocket Is the connection throught a websocket.
      * @param {Function} reciverHandler Data reciver handler.
-     * @param {boolean} cachingEnabled If caching is enabled, mostly used for caching paths. (default undefined)
-     * @param {Function | undefined} setCache Function used to set cache items. (default undefined)
-     * @param {Function | undefined} getCache Function used to get cached items. (default undefined)
      */
     constructor(
         isWebsocket: boolean,
         reciverHandler: (type: number, op: number, payload: any) => any,
-        cachingEnabled: boolean,
-        setCache: ((key: string, data: any) => any) | undefined,
-        getCache: (<T>(key: string) => T | undefined) | undefined,
     ) {
         this.isWebsocket = isWebsocket;
-
         this.reciverHandler = reciverHandler;
-
-        this.cachingEnabled = cachingEnabled;
-        this.setCache = setCache;
-        this.getCache = getCache;
     }
 
     /**
@@ -111,9 +93,6 @@ class RPCCommunication {
      */
     send(op: number, payload: any) {
         if (!this.connected) {
-            Logger.warn(
-                'Cannot send payload to socket when it is not connected.',
-            );
             return;
         }
 
@@ -126,40 +105,6 @@ class RPCCommunication {
     }
 
     /**
-     * @param {string} path Path that will be cached.
-     * @description Caches the path for later use.
-     */
-    private cacheIpcPath(path: string) {
-        if (!this.cachingEnabled) {
-            return;
-        }
-
-        if (!this.setCache) {
-            return;
-        }
-
-        this.setCache('discordIpcPipePath', path);
-    }
-
-    /**
-     * @description Gets the cached IPC path.
-     * @returns {string | undefined} Path to IPC.
-     */
-    private getCachedIpcPath(): string | undefined {
-        if (!this.cachingEnabled) {
-            return;
-        }
-
-        if (!this.getCache) {
-            return;
-        }
-
-        const path = this.getCache<string>('discordIpcPipePath');
-
-        return path;
-    }
-
-    /**
      * @description Finds a path in the system files.
      */
     private searchForPath(): string | undefined {
@@ -167,6 +112,29 @@ class RPCCommunication {
 
         if (process.platform === 'darwin') {
             path = '/private/var/folders/**/*discord-ipc-*';
+        }
+
+        if (process.platform === 'linux') {
+            const xdgRuntimeDir = process.env.XDG_RUNTIME_DIR;
+
+            const candidates = [
+                xdgRuntimeDir ? `${xdgRuntimeDir}/discord-ipc-*` : undefined,
+                xdgRuntimeDir
+                    ? `${xdgRuntimeDir}/app/com.discordapp.Discord/discord-ipc-*`
+                    : undefined, // flatpak
+                '/run/user/*/discord-ipc-*',
+                '/run/user/*/snap.discord/discord-ipc-*', // snap
+            ].filter((p): p is string => p !== undefined);
+
+            for (const candidate of candidates) {
+                const results = globSync(candidate);
+
+                if (results.length > 0) {
+                    return results[0];
+                }
+            }
+
+            return undefined;
         }
 
         if (!path) {
@@ -187,19 +155,11 @@ class RPCCommunication {
      * @returns {string | undefined} Path to the discord's IPC pipe.
      */
     private deepFindIpcPath(): string | undefined {
-        const cachedPath = this.getCachedIpcPath();
-
-        if (cachedPath && existsSync(cachedPath)) {
-            return cachedPath;
-        }
-
         const foundPath = this.searchForPath();
 
         if (!foundPath) {
             return;
         }
-
-        this.cacheIpcPath(foundPath);
 
         return foundPath;
     }
@@ -262,10 +222,11 @@ class RPCCommunication {
 
                 this.socket.on('error', (data: any) => {
                     this.recive(1, data);
+                    throw new Error('IPC Connection failed', { cause: data });
                 });
 
                 this.socket.on('end', (data: any) => {
-                    Logger.info('ICP disconnected from discord.');
+                    console.log('ICP disconnected from discord.');
                     this.reciverHandler(2, -1, -1);
                 });
 
@@ -320,35 +281,103 @@ class RPCCommunication {
     }
 }
 
-/*------------------*/
-/* RPC Button Class */
-/*------------------*/
-// Button data for rpc.
+/**
+ * ACTIVITY BUTTON
+ *
+ * Button wraper for discord's activity.
+ */
+export class ActivityButton {
+    private label: string | undefined;
+    private url: string | undefined;
 
-export class RPCButton {
-    private button: { label: string; url: string };
+    constructor() {}
 
     /**
-     * @param button Button data.
+     *
+     * @param {string} label Button's label.
+     * @description Sets the button's label.
+     * @returns {ActivityButton}
      */
-    constructor(button: { label: string; url: string }) {
-        this.button = button;
+    setLabel(label: string): ActivityButton {
+        this.label = label;
+        return this;
     }
 
     /**
-     * @returns Returns the button data.
+     *
+     * @param {string} url Button's URL.
+     * @description Sets the button's URL.
+     * @returns {ActivityButton}
      */
-    parse(): object {
-        return this.button;
+    setUrl(url: string): ActivityButton {
+        this.url = url;
+        return this;
+    }
+
+    /**
+     * @returns {string | undefined} Button's label.
+     */
+    getLabel(): string | undefined {
+        return this.label;
+    }
+
+    /**
+     * @returns {string | undefined} Button's URL.
+     */
+    getUrl(): string | undefined {
+        return this.url;
+    }
+
+    /**
+     * @returns {object} Returns the button data.
+     */
+    getAsObject(): object {
+        return {
+            ...(this.label !== undefined && { label: this.label }),
+            ...(this.url !== undefined && { url: this.url }),
+        };
     }
 }
 
-/*----------------*/
-/* RPC DATA CLASS */
-/*----------------*/
-// Data for rpc in discord, handles parsing and standard data building functions.
+/**
+ * ACTIVITY TYPE
+ *
+ * Wraper around discord's number system of activity types.
+ */
+export enum ActivityType {
+    PLAYING = 0,
+    STREAMING = 1,
+    LISTENING = 2,
+    WATCHING = 3,
+    CUSTOM = 4,
+    COMPETING = 5,
+}
 
-export class RPCData {
+/**
+ * ACTIVITY OBJECT
+ *
+ * Wraper for objects coming from activity (sent to discord).
+ */
+interface ActivityObject {
+    name: string;
+    type: ActivityType;
+    details?: string;
+    state?: string;
+    start?: number;
+    end?: number;
+    large_image?: string;
+    large_text?: string;
+    small_image?: string;
+    small_text?: string;
+    buttons?: { label?: string; url?: string }[];
+}
+
+/**
+ * ACTIVITY
+ *
+ * Handles creation of activity data and it's parsing.
+ */
+export class Activity {
     private name: string;
     private type: number;
 
@@ -364,76 +393,68 @@ export class RPCData {
     private smallImage: string | undefined;
     private smallImageText: string | undefined;
 
-    private buttons: RPCButton[] = [];
+    private buttons: ActivityButton[] = [];
 
     /**
-     * @param {string} name Name of the RPC.
+     * @param {string} name Name of the activity.
      * @param {type} type Type of the activity.
      */
-    constructor(name: string, type: number = 0) {
+    constructor(name: string, type: ActivityType = 0) {
         this.name = name;
         this.type = type;
     }
 
     /**
-     * @param {LooseObject} activity Object to parse.
-     * @description Adds the activity fields to the object if they are set.
-     * @returns {LooseObject} Parsed object.
+     * @description Parses all buttons to objects.
+     * @returns {object} Parsed object.
      */
-    private parseActivity(activity: LooseObject): LooseObject {
-        if (this.title && this.title.length >= 2) {
-            addToObject(activity, ['details'], this.title);
-        }
-
-        if (this.description && this.description.length >= 2) {
-            addToObject(activity, ['state'], this.description);
-        }
-
-        addToObject(activity, ['timestamps', 'start'], this.timestampStart);
-        addToObject(activity, ['timestamps', 'end'], this.timestampEnd);
-
-        addToObject(activity, ['assets', 'large_image'], this.largeImage);
-        addToObject(activity, ['assets', 'large_text'], this.largeImageText);
-
-        addToObject(activity, ['assets', 'small_image'], this.smallImage);
-        addToObject(activity, ['assets', 'small_text'], this.smallImageText);
-
-        return activity;
-    }
-
-    /**
-     * @param {LooseObject} activity Object to parse.
-     * @description Adds the button fields to the object if they are set.
-     * @returns {LooseObject} Parsed object.
-     */
-    private parseButtons(activity: LooseObject): LooseObject {
-        if (this.buttons.length === 0) {
-            return activity;
-        }
-
-        let parsedButtons: object[] = [];
-
-        for (const button of this.buttons) {
-            parsedButtons.push(button.parse());
-        }
-
-        addToObject(activity, ['buttons'], parsedButtons);
-
-        return activity;
+    private buttonsAsObjects(): { label?: string; url?: string }[] {
+        return this.buttons.map((button) => button.getAsObject());
     }
 
     /**
      * @description Parses the data into an object.
-     * @returns {object} Parsed object.
+     * @returns {ActivityObject} Parsed object.
      */
-    parse(): object {
-        let activity: LooseObject = {
+    getAsObject(): ActivityObject {
+        const activity: ActivityObject = {
             name: this.name,
-            type: 0,
+            type: this.type,
         };
 
-        activity = this.parseActivity(activity);
-        activity = this.parseButtons(activity);
+        if (this.title !== undefined && this.title!.length >= 2) {
+            activity.details = this.title;
+        }
+        if (this.description !== undefined && this.description!.length >= 2) {
+            activity.state = this.description;
+        }
+        if (this.timestampStart !== undefined) {
+            activity.start = this.timestampStart;
+        }
+        if (this.timestampEnd !== undefined) {
+            activity.end = this.timestampEnd;
+        }
+        if (this.largeImage !== undefined && this.largeImage!.length >= 2) {
+            activity.large_image = this.largeImage;
+        }
+        if (
+            this.largeImageText !== undefined &&
+            this.largeImageText!.length <= 2
+        ) {
+            activity.large_text = this.largeImageText;
+        }
+        if (this.smallImage !== undefined && this.smallImage!.length >= 2) {
+            activity.small_image = this.smallImage;
+        }
+        if (
+            this.smallImageText !== undefined &&
+            this.smallImageText!.length <= 2
+        ) {
+            activity.small_text = this.smallImageText;
+        }
+        if (this.buttons.length > 0) {
+            activity.buttons = this.buttonsAsObjects();
+        }
 
         return activity;
     }
@@ -441,105 +462,90 @@ export class RPCData {
     /**
      * @param {string} value
      * @description Sets the title (aka details of the activity).
-     * @returns {RPCData} Current class.
+     * @returns {Activity} Current class.
      */
-    setTitle(value: string): RPCData {
+    setTitle(value: string): Activity {
         this.title = value;
-
         return this;
     }
+
     /**
      * @param {string} value
      * @description Sets the description (aka state of the activity).
-     * @returns {RPCData} Current class.
+     * @returns {Activity} Current class.
      */
-    setDescription(value: string): RPCData {
+    setDescription(value: string): Activity {
         this.description = value;
-
         return this;
     }
 
     /**
      * @param {number} value
      * @description Sets the start of the timestamp.
-     * @returns {RPCData} Current class.
+     * @returns {Activity} Current class.
      */
-    setTimestampStart(value: number): RPCData {
+    setTimestampStart(value: number): Activity {
         this.timestampStart = value;
-
         return this;
     }
+
     /**
      * @param {number} value
      * @description Sets the end of the timestamp.
-     * @returns {RPCData} Current class.
+     * @returns {Activity} Current class.
      */
-    setTimestampEnd(value: number): RPCData {
+    setTimestampEnd(value: number): Activity {
         this.timestampEnd = value;
-
         return this;
     }
 
     /**
      * @param {string} value
      * @description Sets the large image ID.
-     * @returns {RPCData} Current class.
+     * @returns {Activity} Current class.
      */
-    setLargeImage(value: string): RPCData {
+    setLargeImage(value: string): Activity {
         this.largeImage = value;
-
         return this;
     }
+
     /**
      * @param {string} value
      * @description Sets the large image text.
-     * @returns {RPCData} Current class.
+     * @returns {Activity}
      */
-    setLargeImageText(value: string): RPCData {
+    setLargeImageText(value: string): Activity {
         this.largeImageText = value;
-
         return this;
     }
 
     /**
      * @param {string} value
      * @description Sets the small image.
-     * @returns {RPCData} Current class.
+     * @returns {Activity}
      */
-    setSmallImage(value: string): RPCData {
+    setSmallImage(value: string): Activity {
         this.smallImage = value;
-
         return this;
     }
+
     /**
      * @param {string} value
      * @description Sets the small image text.
-     * @returns {RPCData} Current class.
+     * @returns {Activity}
      */
-    setSmallImageText(value: string): RPCData {
+    setSmallImageText(value: string): Activity {
         this.smallImageText = value;
-
         return this;
     }
 
     /**
-     * @param {RPCButton} button
-     * @description Adds a button.
-     * @returns {RPCData} Current class.
-     */
-    addButton(button: RPCButton): RPCData {
-        this.buttons.push(button);
-
-        return this;
-    }
-    /**
-     * @param {RPCButton[]} buttons
+     * @param {ActivityButton[]} buttons
      * @description Adds buttons.
-     * @returns {RPCData} Current class.
+     * @returns {Activity}
      */
-    addButtons(buttons: RPCButton[]): RPCData {
+    addButtons(buttons: ActivityButton[]): Activity {
         this.buttons.concat(buttons);
-
         return this;
     }
 
@@ -549,10 +555,11 @@ export class RPCData {
     getName(): string {
         return this.name;
     }
+
     /**
-     * @returns {number} Type of the activity.
+     * @returns {ActivityType} Type of the activity.
      */
-    getType(): number {
+    getType(): ActivityType {
         return this.type;
     }
 
@@ -562,6 +569,7 @@ export class RPCData {
     getTitle(): string | undefined {
         return this.title;
     }
+
     /**
      * @returns {string | undefined} Description.
      */
@@ -575,6 +583,7 @@ export class RPCData {
     getTimestampStart(): number | undefined {
         return this.timestampStart;
     }
+
     /**
      * @returns {number | undefined} Timestamp end.
      */
@@ -588,6 +597,7 @@ export class RPCData {
     getLargeImage(): string | undefined {
         return this.largeImage;
     }
+
     /**
      * @returns {string | undefined} Large image text.
      */
@@ -601,6 +611,7 @@ export class RPCData {
     getSmallImage(): string | undefined {
         return this.smallImage;
     }
+
     /**
      * @returns {string | undefined} Small image text.
      */
@@ -611,23 +622,23 @@ export class RPCData {
     /**
      * @returns {RPCButton[]} All buttons.
      */
-    getButtons(): RPCButton[] {
+    getButtons(): ActivityButton[] {
         return this.buttons;
     }
 }
 
-/*------------------*/
-/* RPC HANDLE CLASS */
-/*------------------*/
-// Handles connection with discord, handles updates and data.
-
+/**
+ * REMOTE PROCESS COMMUNICATION
+ *
+ * Handes connection with discord (updates and data parsing)
+ */
 export class RPCHandle {
     private readonly applicationId: string;
 
     private userData: any;
 
-    private communication: RPCCommunication | undefined;
-    private presenceLastUpdateObject: RPCData | undefined;
+    private communication: RPC | undefined;
+    private presenceLastUpdateObject: Activity | undefined;
 
     private connectHandler: (handle: RPCHandle) => any;
     private disconnectHandler: (handle: RPCHandle) => any;
@@ -636,19 +647,12 @@ export class RPCHandle {
     private updateInterval: any;
     private updateIntervalMS: number;
 
-    private cachingEnabled: boolean;
-    private setCache: ((key: string, data: any) => void) | undefined;
-    private getCache: (<T>(key: string) => T | undefined) | undefined;
-
     /**
      * @param {string} applicationId ID for the application that contains all the images for RPC.
      * @param {Function} connectHandler Function is called when the RPC connects successfully.
      * @param {Function} disconnectHandler Function is called when the RPC disconnects.
      * @param {Function} updateHandler Function is called when the updateInterval updates.
      * @param {number} updateIntervalMS Time between updates in the milliseconds. (default 12_000)
-     * @param {boolean} cachingEnabled Is caching enabled for the RPC. (default false)
-     * @param {Function} setCache Function used for caching RPC paths and data. (default undefined)
-     * @param {Function} getCache Function used for getting RPC paths and data cache. (default undefined)
      */
     constructor(
         applicationId: string,
@@ -656,9 +660,6 @@ export class RPCHandle {
         disconnectHandler: (handle: RPCHandle) => any,
         updateHandler: (handle: RPCHandle) => any,
         updateIntervalMS: number = 12_000,
-        cachingEnabled = false,
-        setCache: ((name: string, data: any) => void) | undefined = undefined,
-        getCache: (<T>(name: string) => T | undefined) | undefined = undefined,
     ) {
         this.applicationId = applicationId;
 
@@ -667,10 +668,6 @@ export class RPCHandle {
         this.updateHandler = updateHandler;
 
         this.updateIntervalMS = updateIntervalMS;
-
-        this.cachingEnabled = cachingEnabled;
-        this.setCache = setCache;
-        this.getCache = getCache;
     }
 
     /**
@@ -678,30 +675,24 @@ export class RPCHandle {
      */
     private createIntervalLoop() {
         this.updateInterval = setInterval(() => {
-            Logger.log('RPC update.');
             this.updateHandler(this);
         }, this.updateIntervalMS);
     }
 
     /**
-     * @description Tries to connect to discord using the 'RPCCommunication'.
+     * @description Tries to connect to discord using the 'RPC'.
      * @returns {Promise<boolean>} Did connect successfully.
      */
     private async tryToConnect(): Promise<boolean> {
         if (!this.communication) {
-            Logger.warn(
-                "Variable 'communitacion' is undentified, cannot connect.",
-            );
-            return false;
+            throw new Error('Communication not created.');
         }
 
-        Logger.info('Connecting to discord...');
         let success = false;
         this.userData = await this.communication?.connect(this.applicationId);
 
         if (this.userData) {
-            Logger.log('Connected! Setting up interval...');
-            Logger.info('Connected user data: ', this.userData);
+            console.log('Discord connected!');
 
             success = true;
 
@@ -720,10 +711,8 @@ export class RPCHandle {
      * @description Handles the data recived from discord.
      */
     private handleData(type: number, op: number, payload: any) {
-        Logger.info(`Recived opcode: ${op} and data.`, payload);
         switch (type) {
             case 1:
-                Logger.error(`Error occured, (opcode: ${op}).`, payload);
                 return;
             case 2:
                 this.disconnectHandler(this);
@@ -735,7 +724,7 @@ export class RPCHandle {
                 this.updatePresence();
                 break;
             default:
-                Logger.warn(`Unhandled event, (opcode: ${op}).`, payload);
+                break;
         }
     }
 
@@ -745,28 +734,25 @@ export class RPCHandle {
      * @returns {Promise<boolean>} Did connect successfully.
      */
     async connect(websocket: boolean): Promise<boolean> {
-        this.communication = new RPCCommunication(
-            websocket,
-            this.handleData,
-            this.cachingEnabled,
-            this.setCache,
-            this.getCache,
-        );
+        this.communication = new RPC(websocket, this.handleData);
 
-        let connected: boolean = await this.tryToConnect();
+        try {
+            let connected: boolean = await this.tryToConnect();
 
-        for (let i = 1; i > 3; i++) {
-            if (connected) {
-                break;
+            for (let i = 1; i > 3; i++) {
+                if (connected) {
+                    break;
+                }
+
+                await new Promise((f) => setTimeout(f, 3000 * i));
+
+                connected = await this.tryToConnect();
             }
 
-            await new Promise((f) => setTimeout(f, 3000 * i));
-
-            Logger.info(`Trying to connect ${i} time...`);
-            connected = await this.tryToConnect();
+            return connected;
+        } catch (err) {
+            throw err;
         }
-
-        return connected;
     }
 
     /**
@@ -786,13 +772,10 @@ export class RPCHandle {
      */
     disconnect() {
         if (!this.communication) {
-            Logger.warn(
-                "Variable 'communitacion' is undentified, cannot connect.",
-            );
             return;
         }
 
-        Logger.log("Disconnected from discord's RPC.");
+        console.log('Discord disconnected.');
         this.communication.disconnect();
         clearInterval(this.updateInterval);
         this.disconnectHandler(this);
@@ -803,7 +786,6 @@ export class RPCHandle {
      */
     private updatePresence() {
         if (!this.communication) {
-            Logger.warn('Cannot update presence when communication is closed.');
             return;
         }
 
@@ -811,7 +793,7 @@ export class RPCHandle {
             return;
         }
 
-        const activity = this.presenceLastUpdateObject?.parse();
+        const activity = this.presenceLastUpdateObject.getAsObject();
         const payload = {
             cmd: 'SET_ACTIVITY',
             nonce: randomUUID(),
@@ -821,16 +803,18 @@ export class RPCHandle {
             },
         };
 
+        // console.log(activity);
+
         this.communication.send(1, payload);
     }
 
     /**
-     * @param {RPCData} rpcUpdateData The RPC data.
+     * @param {Activity} activity The RP data.
      * @description Sets 'presenceLastUpdateObject' and calls function 'updatePresence()'.
      */
-    update(rpcUpdateData?: RPCData) {
-        if (rpcUpdateData) {
-            this.presenceLastUpdateObject = rpcUpdateData;
+    update(activity: Activity) {
+        if (activity) {
+            this.presenceLastUpdateObject = activity;
         }
 
         this.updatePresence();
@@ -852,14 +836,10 @@ export class RPCHandle {
      */
     getUserId(): string | undefined {
         if (!this.communication) {
-            Logger.warn(
-                `Trying to get userId when RPC communication is not initalized.`,
-            );
             return;
         }
 
         if (!this.communication?.isConnected()) {
-            Logger.warn(`Trying to get userId when RPC is not connected.`);
             return;
         }
 
@@ -875,14 +855,10 @@ export class RPCHandle {
      */
     getUsername(): string | undefined {
         if (!this.communication) {
-            Logger.warn(
-                `Trying to get username when RPC communication is not initalized.`,
-            );
             return;
         }
 
         if (!this.communication.isConnected()) {
-            Logger.warn(`Trying to get username when RPC is not connected.`);
             return;
         }
 
@@ -898,16 +874,10 @@ export class RPCHandle {
      */
     getDisplayName(): string | undefined {
         if (!this.communication) {
-            Logger.warn(
-                `Trying to get display name when RPC communication is not initalized.`,
-            );
             return;
         }
 
         if (!this.communication.isConnected()) {
-            Logger.warn(
-                `Trying to get display name when RPC is not connected.`,
-            );
             return;
         }
 

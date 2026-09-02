@@ -25,11 +25,11 @@ module.exports = (env, argv) => {
     const extensions = ['.ts', '.js'];
 
     const srcPath = path.resolve(__dirname, 'src');
-    const entryPath = path.resolve(__dirname, 'src', 'main.ts');
+    const entryPath = path.resolve(__dirname, 'src', 'extension.ts');
     const outputPath = path.resolve(__dirname, 'dist');
-    const testPath = path.resolve(__dirname, 'test');
+    const testPath = path.resolve(__dirname, 'files');
 
-    const devtool = isDev ? 'eval-source-map' : 'none';
+    const devtool = isDev ? 'eval-source-map' : false;
 
     // Plugins
     let plugins = [
@@ -51,11 +51,11 @@ module.exports = (env, argv) => {
     console.log(`Output: ${outputPath}`);
     console.log(`Source Maps: ${devtool}`);
 
-    // Webpack configuration
+    /** @type WebpackConfig */
     return {
         mode: mode,
         target: 'node',
-        entry: entryPath,
+        entry: { extension: entryPath },
         output: {
             path: outputPath,
             filename: '[name].js',
@@ -70,19 +70,7 @@ module.exports = (env, argv) => {
                 {
                     test: /\.ts$/,
                     exclude: /node_modules/,
-                    use: [
-                        {
-                            loader: 'ts-loader',
-                        },
-                    ],
-                },
-                {
-                    test: /\.ts$/,
-                    exclude: [testPath],
-                },
-                {
-                    test: /\.js$/,
-                    exclude: [testPath],
+                    use: [{ loader: 'ts-loader' }],
                 },
             ],
         },
@@ -91,12 +79,7 @@ module.exports = (env, argv) => {
             plugins: resolvePlugins,
         },
         optimization: {
-            splitChunks: {
-                cacheGroups: {
-                    vendors: false,
-                },
-                chunks: 'all',
-            },
+            splitChunks: false,
             minimize: true,
             minimizer: [new TerserPlugin()],
             concatenateModules: true,

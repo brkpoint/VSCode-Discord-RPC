@@ -1,8 +1,10 @@
 {
     "name": "vscode-discord-rpc",
-    "icon": "icon.png",
-    "publisher": "brkpointdotorg",
     "displayName": "Simple RP",
+    "icon": "icon.png",
+    "description": "",
+    "publisher": "brkpointdotorg",
+    "version": "3.0.0",
     "keywords": [
         "rpc",
         "rp",
@@ -10,13 +12,8 @@
         "discord",
         "vscode discord"
     ],
-    "description": "Simple, easy to use, custom rich presence for discord.",
-    "repository": {
-        "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
-    },
-    "version": "2.2.3",
     "engines": {
-        "vscode": "^1.92.0"
+        "vscode": "^1.134.0"
     },
     "categories": [
         "Other"
@@ -24,92 +21,86 @@
     "activationEvents": [
         "onStartupFinished"
     ],
-    "main": "./dist/main.js",
+    "main": "./dist/extension.js",
     "contributes": {
         "commands": [
             {
-                "command": "vscode-discord-rpc.startRP",
-                "title": "Simple RP: Start RP."
+                "command": "vscode-discord-rpc.connect",
+                "title": "Simple RP: Connect to discord"
             },
             {
-                "command": "vscode-discord-rpc.stopRP",
-                "title": "Simple RP: Stop RP."
+                "command": "vscode-discord-rpc.disconnect",
+                "title": "Simple RP: Disconnect from discord"
             },
             {
-                "command": "vscode-discord-rpc.reloadRPC",
-                "title": "Simple RP: Reload RP."
-            },
-            {
-                "command": "vscode-discord-rpc.clearAllCache",
-                "title": "Simple RP: Clear all cache."
+                "command": "vscode-discord-rpc.reload",
+                "title": "Simple RP: Reload session"
             },
             {
                 "command": "vscode-discord-rpc.reportIssue",
-                "title": "Simple RP: Report an issue..."
+                "title": "Simple RP: Report an issue"
             }
         ],
-        "menus": {
-            "issue/reporter": [
-                {
-                    "command": "vscode-discord-rpc.reportIssue"
-                }
-            ]
-        },
-        "configuration": [
-            {
-                "title": "VSCode Discord RPC",
-                "properties": {
-                    "vscode-discord-rpc.showTime": {
-                        "order": 0,
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable/Disable time elapsed."
-                    },
-                    "vscode-discord-rpc.updateTimeInterval": {
-                        "order": 1,
-                        "type": "number",
-                        "default": 12,
-                        "description": "Update time for interval in seconds."
-                    },
-                    "vscode-discord-rpc.editing.showLanguageIcons": {
-                        "order": 2,
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Enable/Disable language icon of current file"
-                    },
-                    "vscode-discord-rpc.editing.details": {
-                        "type": "string",
-                        "default": "$(workspace)",
-                        "description": "Details field for RPC."
-                    },
-                    "vscode-discord-rpc.editing.state": {
-                        "type": "string",
-                        "default": "$(fileName):$(line):$(col) - $(problems)",
-                        "description": "State field for RPC."
-                    },
-                    "vscode-discord-rpc.editing.iconText": {
-                        "type": "string",
-                        "default": "Editing...",
-                        "description": "Text when hovering over the icon."
-                    },
-                    "vscode-discord-rpc.idle.details": {
-                        "type": "string",
-                        "default": "Idle...",
-                        "description": "Idle details field for RPC."
-                    },
-                    "vscode-discord-rpc.idle.state": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Idle state field for RPC."
-                    },
-                    "vscode-discord-rpc.idle.iconText": {
-                        "type": "string",
-                        "default": "Idling...",
-                        "description": "Idle text when hovering over the icon."
-                    }
+        "configuration": {
+            "title": "Simple RP",
+            "properties": {
+                "vscode-discord-rpc.activityName": {
+                    "type": "string",
+                    "default": "Visual Studio Code",
+                    "description": "Name of the activity"
+                },
+                "vscode-discord-rpc.activityStealthMode": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Hides detailed file/workspace information"
+                },
+                "vscode-discord-rpc.activityIdleTitleText": {
+                    "type": "string",
+                    "default": "Idle...",
+                    "description": "Title text shown when the editor is idle"
+                },
+                "vscode-discord-rpc.activityIdleDescriptionText": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Description text shown when the editor is idle"
+                },
+                "vscode-discord-rpc.activityTitleText": {
+                    "type": "string",
+                    "default": "$(workspace)",
+                    "description": "Template for the activity title (details)"
+                },
+                "vscode-discord-rpc.activityDescriptionText": {
+                    "type": "string",
+                    "default": "$(fileName) $(line):$(column) - $(problems) problems",
+                    "description": "Template for the activity description (state)"
+                },
+                "vscode-discord-rpc.allowActivityTimestamp": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Shows elapsed session time"
+                },
+                "vscode-discord-rpc.statusBarItemDefaultText": {
+                    "type": "string",
+                    "default": "$(sync~spin) Connecting",
+                    "description": "Status bar text shown while connecting"
+                },
+                "vscode-discord-rpc.statusBarItemConnectedText": {
+                    "type": "string",
+                    "default": "$(pass-filled) $(displayName)",
+                    "description": "Status bar text shown when connected"
+                },
+                "vscode-discord-rpc.statusBarItemDisconnectedText": {
+                    "type": "string",
+                    "default": "$(error) Disconnected",
+                    "description": "Status bar text shown when disconnected"
+                },
+                "vscode-discord-rpc.discordApplicationId": {
+                    "type": "string",
+                    "default": "1273940066603106328",
+                    "description": "Discord Application ID (client ID from Developer Portal)"
                 }
             }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run prod",
@@ -118,7 +109,7 @@
         "watch": "npm run dev",
         "compileProd": "webpack --mode production",
         "compileDev": "webpack --watch --mode development",
-        "minify": "terser ./dist/main.js -o ./dist/main.min.js",
+        "minify": "terser ./dist/extension.js -o ./dist/extension.min.js",
         "compile-tests": "tsc -p . --outDir out",
         "watch-tests": "tsc -p . -w --outDir out",
         "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -127,26 +118,24 @@
     },
     "devDependencies": {
         "@types/mocha": "^10.0.10",
-        "@types/node": "^20.17.14",
-        "@types/vscode": "^1.92.0",
-        "@typescript-eslint/eslint-plugin": "^7.18.0",
-        "@typescript-eslint/parser": "^7.18.0",
-        "@vscode/test-cli": "^0.0.9",
-        "@vscode/test-electron": "^2.4.1",
+        "@types/node": "24.x",
+        "@types/vscode": "^1.134.0",
+        "@vscode/test-cli": "^0.0.15",
+        "@vscode/test-electron": "^3.0.0",
         "clean-webpack-plugin": "^4.0.0",
-        "compression-webpack-plugin": "^11.1.0",
-        "eslint": "^8.57.1",
-        "terser-webpack-plugin": "^5.3.11",
-        "ts-loader": "^9.5.2",
+        "compression-webpack-plugin": "^12.0.0",
+        "eslint": "^10.5.0",
+        "terser-webpack-plugin": "^5.6.1",
+        "ts-loader": "^9.6.2",
         "tsconfig-paths-webpack-plugin": "^4.2.0",
-        "typescript": "^5.7.3",
-        "webpack": "^5.97.1",
-        "webpack-bundle-analyzer": "^4.10.2",
-        "webpack-cli": "^5.1.4"
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.61.1",
+        "webpack": "^5.107.2",
+        "webpack-bundle-analyzer": "^5.3.1",
+        "webpack-cli": "^7.0.3"
     },
-    "dependencies": {
-        "cross-spawn": "^7.0.6",
-        "glob": "^11.0.1",
-        "ws": "^8.18.0"
+    "overrides": {
+        "diff": "^8.0.4",
+        "serialize-javascript": "^7.0.6"
     }
 }
