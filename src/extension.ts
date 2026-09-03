@@ -209,7 +209,13 @@ class Extension {
     /**
      * @description Reloads RPC.
      */
-    reloadConnection() {
+    async reloadConnection() {
+        this.statusBarItem.text = ExtensionData.getStatusBarItemDefaultText();
+
+        this.statusBarItem.tooltip = 'Reloading connection...';
+
+        await new Promise((resolve) => setTimeout(resolve, 1500)); // Small delay 1.5 sec
+
         this.handle.reload();
     }
 
