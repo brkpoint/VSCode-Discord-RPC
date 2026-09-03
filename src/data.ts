@@ -8,8 +8,8 @@ import { WorkspaceData } from './workspace';
  */
 export namespace ExtensionData {
     // Extension specific
-    export const extensionName = 'vscode-discord-rpc';
-    export const extensionId = `brkpointdotorg.${extensionName}`;
+    export const extensionName = 'vsc-presence';
+    export const extensionId = `brkpoint.${extensionName}`;
 
     const config = vscode.workspace.getConfiguration(
         ExtensionData.extensionName,

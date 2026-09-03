@@ -1,10 +1,14 @@
 {
-    "name": "vscode-discord-rpc",
-    "displayName": "Simple RP",
+    "name": "vsc-presence",
+    "displayName": "VSC Presence",
     "icon": "icon.png",
-    "description": "",
-    "publisher": "brkpointdotorg",
+    "description": "Displays your VSCode activity in Discord.",
+    "publisher": "brkpoint",
     "version": "3.0.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/brkpoint/VSCode-Discord-RPC"
+    },
     "keywords": [
         "rpc",
         "rp",
@@ -25,76 +29,76 @@
     "contributes": {
         "commands": [
             {
-                "command": "vscode-discord-rpc.connect",
-                "title": "Simple RP: Connect to discord"
+                "command": "vsc-presence.connect",
+                "title": "VSC Presence: Connect to discord"
             },
             {
-                "command": "vscode-discord-rpc.disconnect",
-                "title": "Simple RP: Disconnect from discord"
+                "command": "vsc-presence.disconnect",
+                "title": "VSC Presence: Disconnect from discord"
             },
             {
-                "command": "vscode-discord-rpc.reload",
-                "title": "Simple RP: Reload session"
+                "command": "vsc-presence.reload",
+                "title": "VSC Presence: Reload session"
             },
             {
-                "command": "vscode-discord-rpc.reportIssue",
-                "title": "Simple RP: Report an issue"
+                "command": "vsc-presence.reportIssue",
+                "title": "VSC Presence: Report an issue"
             }
         ],
         "configuration": {
-            "title": "Simple RP",
+            "title": "VSC Presence",
             "properties": {
-                "vscode-discord-rpc.activityName": {
+                "vsc-presence.activityName": {
                     "type": "string",
                     "default": "Visual Studio Code",
                     "description": "Name of the activity"
                 },
-                "vscode-discord-rpc.activityStealthMode": {
+                "vsc-presence.activityStealthMode": {
                     "type": "boolean",
                     "default": false,
                     "description": "Hides detailed file/workspace information"
                 },
-                "vscode-discord-rpc.activityIdleTitleText": {
+                "vsc-presence.activityIdleTitleText": {
                     "type": "string",
                     "default": "Idle...",
                     "description": "Title text shown when the editor is idle"
                 },
-                "vscode-discord-rpc.activityIdleDescriptionText": {
+                "vsc-presence.activityIdleDescriptionText": {
                     "type": "string",
                     "default": "",
                     "description": "Description text shown when the editor is idle"
                 },
-                "vscode-discord-rpc.activityTitleText": {
+                "vsc-presence.activityTitleText": {
                     "type": "string",
                     "default": "$(workspace)",
                     "description": "Template for the activity title (details)"
                 },
-                "vscode-discord-rpc.activityDescriptionText": {
+                "vsc-presence.activityDescriptionText": {
                     "type": "string",
                     "default": "$(fileName) $(line):$(column) - $(problems) problems",
                     "description": "Template for the activity description (state)"
                 },
-                "vscode-discord-rpc.allowActivityTimestamp": {
+                "vsc-presence.allowActivityTimestamp": {
                     "type": "boolean",
                     "default": true,
                     "description": "Shows elapsed session time"
                 },
-                "vscode-discord-rpc.statusBarItemDefaultText": {
+                "vsc-presence.statusBarItemDefaultText": {
                     "type": "string",
                     "default": "$(sync~spin) Connecting",
                     "description": "Status bar text shown while connecting"
                 },
-                "vscode-discord-rpc.statusBarItemConnectedText": {
+                "vsc-presence.statusBarItemConnectedText": {
                     "type": "string",
                     "default": "$(pass-filled) $(displayName)",
                     "description": "Status bar text shown when connected"
                 },
-                "vscode-discord-rpc.statusBarItemDisconnectedText": {
+                "vsc-presence.statusBarItemDisconnectedText": {
                     "type": "string",
                     "default": "$(error) Disconnected",
                     "description": "Status bar text shown when disconnected"
                 },
-                "vscode-discord-rpc.discordApplicationId": {
+                "vsc-presence.discordApplicationId": {
                     "type": "string",
                     "default": "1273940066603106328",
                     "description": "Discord Application ID (client ID from Developer Portal)"

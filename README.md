@@ -5,15 +5,15 @@
     <br>
     <img alt="vsc-presence-icon" src="./icon.png" width=128>
     <br><br>
-    <img alt="Visual Studio Marketplace Rating" src="https://img.shields.io/visual-studio-marketplace/stars/brkpointdotorg.vscode-discord-rpc">
+    <img alt="Visual Studio Marketplace Rating" src="https://img.shields.io/visual-studio-marketplace/stars/brkpoint.vsc-presence">
     <br><br>
     <div class="main link">
-        <a href="https://marketplace.visualstudio.com/items?itemName=brkpointdotorg.vscode-discord-rpc" target="about:blank">
+        <a href="https://marketplace.visualstudio.com/items?itemName=brkpoint.vsc-presence" target="about:blank">
             <img alt="Visual Studio Marketplace icon" src="https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/1b6d695a-be0d-4aaf-920f-675585b5bb9c.png?auto=format&ixlib=react-9.0.3" style="margin-right: 10px;" width=28>
         </a>
-        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/brkpointdotorg.vscode-discord-rpc">
-        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/brkpointdotorg.vscode-discord-rpc">
-        <img alt="Visual Studio Marketplace Downloads" src="https://img.shields.io/visual-studio-marketplace/d/brkpointdotorg.vscode-discord-rpc">
+        <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/brkpoint.vsc-presence">
+        <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/brkpoint.vsc-presence">
+        <img alt="Visual Studio Marketplace Downloads" src="https://img.shields.io/visual-studio-marketplace/d/brkpoint.vsc-presence">
     </div>
     <div class="main link">
         <a href="https://github.com/brkpoint/VSCode-Discord-RPC" target="about:blank">
