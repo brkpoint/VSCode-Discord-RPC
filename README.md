@@ -8,7 +8,7 @@
     <img alt="Visual Studio Marketplace Rating" src="https://img.shields.io/visual-studio-marketplace/stars/brkpoint.vsc-presence">
     <br><br>
     <div class="main link">
-        <a href="https://marketplace.visualstudio.com/items?itemName=brkpoint.vsc-presence" target="about:blank">
+        <a href="https://marketplace.visualstudio.com/items?itemName=brkpoint.vsc-presence" target="_blank">
             <img alt="Visual Studio Marketplace icon" src="https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/1b6d695a-be0d-4aaf-920f-675585b5bb9c.png?auto=format&ixlib=react-9.0.3" style="margin-right: 10px;" width=28>
         </a>
         <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/brkpoint.vsc-presence">
@@ -16,7 +16,7 @@
         <img alt="Visual Studio Marketplace Downloads" src="https://img.shields.io/visual-studio-marketplace/d/brkpoint.vsc-presence">
     </div>
     <div class="main link">
-        <a href="https://github.com/brkpoint/VSCode-Discord-RPC" target="about:blank">
+        <a href="https://github.com/brkpoint/VSCode-Discord-RPC" target="_blank">
             <img alt="Github icon" src="https://img.icons8.com/?size=96&id=fmFqQmR0UdsR&format=png" width=40>
         </a>
         <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/brkpoint/VSCode-Discord-RPC">
@@ -29,6 +29,7 @@
 ## About the extension
 
 Connects to Discord and sets a custom RP.
+(before known as "Simple RP")
 
 IF ANY ISSUES/BUGS ACCURE, PLEASE REPORT THEM ([issues](https://github.com/brkpoint/VSCode-Discord-RPC/issues)).
 

@@ -108,12 +108,11 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run prod",
-        "prod": "npm run compileProd && npm run minify",
+        "prod": "npm run compileProd",
         "dev": "npm run compileDev",
         "watch": "npm run dev",
         "compileProd": "webpack --mode production",
         "compileDev": "webpack --watch --mode development",
-        "minify": "terser ./dist/extension.js -o ./dist/extension.min.js",
         "compile-tests": "tsc -p . --outDir out",
         "watch-tests": "tsc -p . -w --outDir out",
         "pretest": "npm run compile-tests && npm run compile && npm run lint",

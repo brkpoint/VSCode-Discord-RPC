@@ -105,19 +105,17 @@ class RPC {
     }
 
     /**
-     * @description Finds a path in the system files.
+     * @description Returns platform-specific glob patterns to search for the IPC socket.
      */
-    private searchForPath(): string | undefined {
-        let path = undefined;
-
+    private getSearchCandidates(): string[] {
         if (process.platform === 'darwin') {
-            path = '/private/var/folders/**/*discord-ipc-*';
+            return ['/private/var/folders/**/*discord-ipc-*'];
         }
 
         if (process.platform === 'linux') {
             const xdgRuntimeDir = process.env.XDG_RUNTIME_DIR;
 
-            const candidates = [
+            return [
                 xdgRuntimeDir ? `${xdgRuntimeDir}/discord-ipc-*` : undefined,
                 xdgRuntimeDir
                     ? `${xdgRuntimeDir}/app/com.discordapp.Discord/discord-ipc-*`
@@ -125,62 +123,45 @@ class RPC {
                 '/run/user/*/discord-ipc-*',
                 '/run/user/*/snap.discord/discord-ipc-*', // snap
             ].filter((p): p is string => p !== undefined);
-
-            for (const candidate of candidates) {
-                const results = globSync(candidate);
-
-                if (results.length > 0) {
-                    return results[0];
-                }
-            }
-
-            return undefined;
         }
 
-        if (!path) {
-            return;
-        }
-
-        const results = globSync(path);
-
-        if (results.length === 0) {
-            return;
-        }
-
-        return results[0];
+        return [];
     }
 
     /**
-     * @description Finds the path in the system or if it is already cached it skips finding it.
-     * @returns {string | undefined} Path to the discord's IPC pipe.
+     * @description Finds a path in the system files.
      */
-    private deepFindIpcPath(): string | undefined {
-        const foundPath = this.searchForPath();
+    private searchForPath(): string | undefined {
+        const candidates = this.getSearchCandidates();
 
-        if (!foundPath) {
-            return;
+        for (const candidate of candidates) {
+            const results = globSync(candidate);
+
+            if (results.length > 0) {
+                return results[0];
+            }
         }
 
-        return foundPath;
+        return undefined;
     }
 
     /**
-     * @description Find IPC pipe path in known folders.
-     * @returns {string | undefined} Path to the universal discord's IPC pipe.
+     * @description Find IPC pipe path in known folders, falling back to a deeper search.
+     * @returns {string | undefined} Path to Discord's IPC pipe.
      */
     private findIpcPath(): string | undefined {
-        let ipcPath = process.platform === 'win32' ? '\\\\.\\pipe\\' : '/tmp/';
+        const ipcDir = process.platform === 'win32' ? '\\\\.\\pipe\\' : '/tmp/';
         const versions = ['discord-ipc-0', 'discord-ipc-1'];
 
         for (const version of versions) {
-            if (!existsSync(ipcPath + version)) {
-                continue;
-            }
+            const candidate = ipcDir + version;
 
-            return ipcPath + version;
+            if (existsSync(candidate)) {
+                return candidate;
+            }
         }
 
-        return this.deepFindIpcPath();
+        return this.searchForPath();
     }
 
     /**
@@ -439,7 +420,7 @@ export class Activity {
         }
         if (
             this.largeImageText !== undefined &&
-            this.largeImageText!.length <= 2
+            this.largeImageText!.length >= 2
         ) {
             activity.large_text = this.largeImageText;
         }
@@ -448,7 +429,7 @@ export class Activity {
         }
         if (
             this.smallImageText !== undefined &&
-            this.smallImageText!.length <= 2
+            this.smallImageText!.length >= 2
         ) {
             activity.small_text = this.smallImageText;
         }

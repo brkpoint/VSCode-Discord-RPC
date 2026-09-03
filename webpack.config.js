@@ -80,7 +80,7 @@ module.exports = (env, argv) => {
         },
         optimization: {
             splitChunks: false,
-            minimize: true,
+            minimize: false,
             minimizer: [new TerserPlugin()],
             concatenateModules: true,
             usedExports: true,
