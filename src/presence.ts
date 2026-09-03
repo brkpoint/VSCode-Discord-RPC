@@ -27,6 +27,8 @@ export namespace Presence {
         const description = ExtensionData.getActivityDescriptionText();
         const icon = WorkspaceData.getIconId();
 
+        console.log(icon);
+
         activity
             .setTitle(title)
             .setDescription(description)

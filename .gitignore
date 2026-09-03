@@ -137,4 +137,4 @@ md/
 .DS_Store
 
 # Extension
-vscode-discord-rpc*
+vsc-presence*

@@ -147,7 +147,9 @@ export namespace ExtensionData {
     }
 
     export function getIconForLang(lang: string): string {
-        return _langToIcon.get(lang) ?? 'vscode';
+        const langIcon = _langToIcon.get(lang) ?? 'vscode';
+
+        return langIcon;
     }
 
     /**

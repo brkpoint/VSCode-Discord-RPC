@@ -10,14 +10,21 @@ import { ExtensionData } from './data';
  */
 class Extension {
     private startTimestamp: number = Date.now();
+
     private statusBarItem: vscode.StatusBarItem;
+    private connectCmd: vscode.Disposable;
+    private disconnectCmd: vscode.Disposable;
+    private barItemCmd: vscode.Disposable;
+    private reloadCmd: vscode.Disposable;
+    private reportIssueCmd: vscode.Disposable;
 
     private handle: RPCHandle;
 
     /**
      * @description Creates a `StatusBarItem` in VSC.
+     * @returns {vscode.StatusBarItem} Status bar item.
      */
-    private _createStatusBarItem() {
+    private _createStatusBarItem(): vscode.StatusBarItem {
         const statusBarItem = vscode.window.createStatusBarItem(
             vscode.StatusBarAlignment.Left,
             0,
@@ -64,7 +71,90 @@ class Extension {
     private async _updateHandler() {
         const activity = Presence.createActivityFromData(this.startTimestamp);
 
+        console.log(activity.getAsObject());
+
         this.handle.update(activity);
+    }
+
+    /**
+     * @returns {vscode.Disposable} Connect command.
+     */
+    private _registerConnectCmd(): vscode.Disposable {
+        const connectCmd = vscode.commands.registerCommand(
+            `${ExtensionData.extensionName}.connect`,
+            () => this.connectToDiscord(),
+        );
+
+        return connectCmd;
+    }
+
+    /**
+     * @returns {vscode.Disposable} Disconnect command.
+     */
+    private _registerDisconnectCmd(): vscode.Disposable {
+        const disconnectCmd = vscode.commands.registerCommand(
+            `${ExtensionData.extensionName}.disconnect`,
+            () => this.disconnectFromDiscord(),
+        );
+
+        return disconnectCmd;
+    }
+
+    /**
+     * @returns {vscode.Disposable} Status bar item command.
+     */
+    private _registerBarItemCmd(): vscode.Disposable {
+        const barItemCmd = vscode.commands.registerCommand(
+            `${ExtensionData.extensionName}.barItem`,
+            () => {
+                if (this.isConnectedToDiscord()) {
+                    this.reloadConnection();
+                    return;
+                }
+
+                extension?.connectToDiscord();
+            },
+        );
+
+        return barItemCmd;
+    }
+
+    /**
+     * @returns {vscode.Disposable} Reload command.
+     */
+    private _registerReloadCmd(): vscode.Disposable {
+        const reloadCmd = vscode.commands.registerCommand(
+            `${ExtensionData.extensionName}.reload`,
+            () => this.reloadConnection(),
+        );
+
+        return reloadCmd;
+    }
+
+    /**
+     * @returns {vscode.Disposable} Report an issue command.
+     */
+    private _registerReportIssueCmd(): vscode.Disposable {
+        const reportIssueCmd = vscode.commands.registerCommand(
+            `${ExtensionData.extensionName}.reportIssue`,
+            async () => {
+                const reporter = await vscode.commands.executeCommand(
+                    'workbench.action.openIssueReporter',
+                    {
+                        extensionId: ExtensionData.extensionId,
+                        issueBody: 'Describe the issue here...',
+                    },
+                );
+
+                if (reporter) {
+                    vscode.window.showInformationMessage(
+                        'Thank you for reporting the issue.',
+                    );
+                }
+            },
+        );
+
+        return reportIssueCmd;
     }
 
     /**
@@ -72,6 +162,11 @@ class Extension {
      */
     constructor(context: vscode.ExtensionContext) {
         this.statusBarItem = this._createStatusBarItem();
+        this.connectCmd = this._registerConnectCmd();
+        this.disconnectCmd = this._registerDisconnectCmd();
+        this.barItemCmd = this._registerBarItemCmd();
+        this.reloadCmd = this._registerReloadCmd();
+        this.reportIssueCmd = this._registerReportIssueCmd();
 
         this.handle = new RPCHandle(
             ExtensionData.getDiscordApplicationId(),
@@ -80,7 +175,14 @@ class Extension {
             this._updateHandler.bind(this),
         );
 
-        context.subscriptions.push(this.statusBarItem);
+        context.subscriptions.push(
+            this.statusBarItem,
+            this.connectCmd,
+            this.disconnectCmd,
+            this.barItemCmd,
+            this.reloadCmd,
+            this.reportIssueCmd,
+        );
     }
 
     /**
@@ -110,6 +212,13 @@ class Extension {
     reloadConnection() {
         this.handle.reload();
     }
+
+    /**
+     * @returns {boolean} Is VSCode connected to Discord.
+     */
+    isConnectedToDiscord(): boolean {
+        return this.handle.isConnected();
+    }
 }
 
 let extension: Extension | undefined = undefined;
@@ -121,43 +230,9 @@ let extension: Extension | undefined = undefined;
  */
 export function activate(context: vscode.ExtensionContext) {
     console.log(`Hello, world from ${ExtensionData.extensionId}`);
+
     extension = new Extension(context);
-
-    const connectCmd = vscode.commands.registerCommand(
-        `${ExtensionData.extensionName}.connect`,
-        () => extension?.connectToDiscord(),
-    );
-
-    const disconnectCmd = vscode.commands.registerCommand(
-        `${ExtensionData.extensionName}.disconnect`,
-        () => extension?.disconnectFromDiscord(),
-    );
-
-    const reloadCmd = vscode.commands.registerCommand(
-        `${ExtensionData.extensionName}.reload`,
-        () => extension?.reloadConnection(),
-    );
-
-    const reportIssueCmd = vscode.commands.registerCommand(
-        `${ExtensionData.extensionName}.reportIssue`,
-        async () => {
-            const reporter = await vscode.commands.executeCommand(
-                'workbench.action.openIssueReporter',
-                {
-                    extensionId: ExtensionData.extensionId,
-                    issueBody: 'Describe the issue here...',
-                },
-            );
-
-            if (reporter) {
-                vscode.window.showInformationMessage(
-                    'Thank you for reporting the issue.',
-                );
-            }
-        },
-    );
-
-    extension.connectToDiscord();
+    extension?.connectToDiscord();
 }
 
 export function deactivate() {

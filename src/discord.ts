@@ -344,12 +344,13 @@ interface ActivityObject {
     type: ActivityType;
     details?: string;
     state?: string;
-    start?: number;
-    end?: number;
-    large_image?: string;
-    large_text?: string;
-    small_image?: string;
-    small_text?: string;
+    timestamps?: { start?: number; end?: number };
+    assets?: {
+        large_image?: string;
+        large_text?: string;
+        small_image?: string;
+        small_text?: string;
+    };
     buttons?: { label?: string; url?: string }[];
 }
 
@@ -403,36 +404,52 @@ export class Activity {
             type: this.type,
         };
 
-        if (this.title !== undefined && this.title!.length >= 2) {
+        if (this.title !== undefined && this.title.length >= 2) {
             activity.details = this.title;
         }
-        if (this.description !== undefined && this.description!.length >= 2) {
+        if (this.description !== undefined && this.description.length >= 2) {
             activity.state = this.description;
         }
+
+        const timestamps: { start?: number; end?: number } = {};
         if (this.timestampStart !== undefined) {
-            activity.start = this.timestampStart;
+            timestamps.start = this.timestampStart;
         }
         if (this.timestampEnd !== undefined) {
-            activity.end = this.timestampEnd;
+            timestamps.end = this.timestampEnd;
         }
-        if (this.largeImage !== undefined && this.largeImage!.length >= 2) {
-            activity.large_image = this.largeImage;
+        if (Object.keys(timestamps).length > 0) {
+            activity.timestamps = timestamps;
+        }
+
+        const assets: {
+            large_image?: string;
+            large_text?: string;
+            small_image?: string;
+            small_text?: string;
+        } = {};
+        if (this.largeImage !== undefined) {
+            assets.large_image = this.largeImage;
         }
         if (
             this.largeImageText !== undefined &&
-            this.largeImageText!.length >= 2
+            this.largeImageText.length >= 2
         ) {
-            activity.large_text = this.largeImageText;
+            assets.large_text = this.largeImageText;
         }
-        if (this.smallImage !== undefined && this.smallImage!.length >= 2) {
-            activity.small_image = this.smallImage;
+        if (this.smallImage !== undefined) {
+            assets.small_image = this.smallImage;
         }
         if (
             this.smallImageText !== undefined &&
-            this.smallImageText!.length >= 2
+            this.smallImageText.length >= 2
         ) {
-            activity.small_text = this.smallImageText;
+            assets.small_text = this.smallImageText;
         }
+        if (Object.keys(assets).length > 0) {
+            activity.assets = assets;
+        }
+
         if (this.buttons.length > 0) {
             activity.buttons = this.buttonsAsObjects();
         }
