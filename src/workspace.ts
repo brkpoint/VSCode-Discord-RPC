@@ -41,11 +41,9 @@ export namespace WorkspaceData {
      */
     export function getFileName(): string {
         const editor = vscode.window.activeTextEditor;
-        const fileName = editor?.document.fileName.split('/').at(-1);
-
-        if (!editor || !fileName) {
-            return 'none';
-        }
+        const fileName = editor
+            ? path.basename(editor.document.fileName)
+            : 'none';
 
         return fileName;
     }
